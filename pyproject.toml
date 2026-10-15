@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bill-reconciler"
+dynamic = ["version"]
+description = "多平台账单『真实支出』对账器：微信/支付宝/银行导出账单合并去重 + 转账语义识别，算出真正花掉的钱。纯本地零上传。"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [{ name = "yuluo554" }]
+keywords = ["bills", "reconciliation", "dedup", "wechat", "alipay", "privacy", "local-first"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Intended Audience :: End Users/Desktop",
+  "License :: OSI Approved :: MIT License",
+  "Natural Language :: Chinese (Simplified)",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Office/Business :: Financial :: Accounting",
+]
+dependencies = []
+
+[project.optional-dependencies]
+# 开发/测试依赖（核心零第三方运行时依赖；测试面 = README 安装面）
+dev = ["pytest>=7.4"]
+
+[project.scripts]
+bill-reconciler = "bill_reconciler.cli:main"
+brc = "bill_reconciler.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/yuluo554/bill-reconciler"
+Repository = "https://github.com/yuluo554/bill-reconciler"
+Changelog = "https://github.com/yuluo554/bill-reconciler/releases"
+
+[tool.setuptools.dynamic]
+version = {attr = "bill_reconciler.__version__"}
+
+[tool.setuptools.packages.find]
+include = ["bill_reconciler*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

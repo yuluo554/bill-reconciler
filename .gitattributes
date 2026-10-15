@@ -1,0 +1,15 @@
+# 默认：源码与文档统一 LF（跨平台工作树一致）
+* text=auto eol=lf
+
+# 冻结数据资产：字节精确（sha256 台账据此比对），禁止任何 EOL/编码改写
+# 注意：这些文件由 tools/ 生成器产出，禁手改；EOL 归一化会改字节 → 必须 -text
+data/samples/** -text
+data/truth/** -text
+data/rules/** -text
+
+# 二进制与容器类
+*.xlsx -text
+*.zip binary
+*.png binary
+*.jpg binary
+*.gif binary
