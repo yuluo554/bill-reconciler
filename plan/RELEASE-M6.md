@@ -39,22 +39,35 @@
 
 | 文件 | 大小（B） | sha256 |
 |---|---|---|
-| bill-reconciler-0.1.0.zip | 待上传后回填 | `b3f5f51c90e5438a7551f28b5b05ca199e8fedf07649ab742e7d69faf635f4a6` |
+（注：§四首次实测基于 55a8db0 打包面（89 条目，sha256 `b3f5f51c…f4a6`）；**发布附件以收尾提交 7549949 的打包面为准**（91 条目，含打包器与发布留档），两次打包 sha256 逐字节一致，见下。）
+
+| 文件 | 大小（B） | sha256 |
+|---|---|---|
+| bill-reconciler-0.1.0.zip（发布附件，7549949 基线） | 634,967 | `30c95fdec8d47eca966b64a38b655b7f5107b0bf9ac13137f7134ba07c96f92a` |
 
 ## 五、Release + tag
 
-- tag `v0.1.0` 打在 CI 绿的收尾提交（M6 收尾提交，含打包器与发布留档）。
+- tag `v0.1.0` 打在 CI 绿的收尾提交 `7549949`（M6 收尾提交，含打包器与发布留档；该提交 CI 四矩阵全绿）。
 - 附件：bill-reconciler-0.1.0.zip（与本地打包同基线，下载后 sha256 对 §四台账核验）。
-- 核验：`gh release view` draft=false + 附件在列；结果见 §七。
+- Release：https://github.com/yuluo554/bill-reconciler/releases/tag/v0.1.0（Notes 含 sha256 与解压即用指引）。
 
 ## 六、发布物本体验证（下载 → sha256 → 中立目录解压 → selftest）
 
-⬜ 待 Release 附件上传后执行（方法复用 plan/verify 干净环境法，但以 zip 本体为准）。
+实测（2026-10-15，中立目录 `D:\ProgramData\zcodeelease-verify-m6`，与本仓无路径关联）：
+
+1. `gh release download v0.1.0` → 下载附件；`sha256sum` = `30c95fde…f92a`，与 §四台账一致 ✅；
+2. 解压 → `py -X utf8 -m bill_reconciler selftest` → **6 PASS / 0 PENDING / 0 FAIL，exit 0**（数据目录解析到解压目录内，符合"解压即用"声明）✅；
+3. 追加冒烟：`run` 三平台样例 `--report` → exit 1（既定语义：检出 4 条 invalid 问题行），`v.html` + `v.json` 产物齐 ✅；`bench` → exit 0 ✅。
 
 ## 七、gh release view 核验
 
-⬜ 待执行。
+`gh release view v0.1.0 --json isDraft,assets,tagName` → `{"isDraft": false, "tagName": "v0.1.0", "assets": [{"name": "bill-reconciler-0.1.0.zip", "size": 634967}]}`：**draft=false + 附件在列 + 大小与本地一致** ✅。
 
-## 八、收尾固化
+CI 对账补充（收尾提交轮）：run 数 2、每轮 conclusion=success、head_sha 分别 55a8db0c… / 7549949e… 对 git log 全一致；tag v0.1.0 所指提交 7549949 的 CI 为全绿轮。
 
-⬜ 待执行：README 状态行转正（M6 完成）、缓议项结案（P1–P6 按默认执行）、plan/00·05·06 终态回写、HANDOFF 归档说明。
+## 八、收尾固化（已执行）
+
+- README：状态行转"**v0.1.0 已发布**（M0–M6 六个里程碑全部完成）"+ 快速开始新增发布 zip 下载指引（方式一/方式二）。
+- 缓议项结案：plan/06 §五 P1–P6 全部按默认执行结案（P2 以 M6 建仓变体结案，理由见该表）；决策回写 plan/00 §二。
+- plan 终态回写：plan/00（文档索引/承诺台账/里程碑表）、plan/05（M6 状态行 + DoD）、plan/06（G15/G17/G18 + §五）。
+- 网络坑留档：本机无代理在跑（ProxyEnable=0），github.com 直连间歇失败（curl 与 git 同 IP 时通时断），push/tag/release 均以"失败后间隔重试"通过，共 3 处重试成功（首推 1 次、7549949 推送 6 次后成功、其余一次成）。
