@@ -1,12 +1,13 @@
-"""流水线编排（plan/03 §六：run 一条命令出结果；M3 接入前三段）。
+"""流水线编排（plan/03 §六：run 一条命令出结果；M4 补全 ①→⑤）。
 
-import → normalize → dedup → classify 的内存内编排；report（M4）与
-subscription（M4）接入后扩为 ①→⑤。每段"只增不改"（plan/03 §〇 原始不可变）；
-分段产物（``normalize`` / ``dedup`` / ``classify`` 段与逐记录标记）共存于
-同一份 IR dict，最终写单个 JSON。
+import → normalize → dedup → classify → subscription → report 的内存内编排；
+每段"只增不改"（plan/03 §〇 原始不可变）；分段产物共存于同一份 IR dict。
+CLI 单段子命令与 ``run`` 共用本模块，保证"单段跑"与"流水线跑"是同一实现
+（不做两份口径）。
 
-CLI 单段子命令（``normalize`` / ``dedup`` / ``classify``）与 ``run`` 共用本模块，
-保证"单段跑"与"流水线跑"是同一实现（不做两份口径）。
+report 段 = ``report.build_sections`` 的结构化章节随流水线落进产物
+（``ledger["report"]``）；CLI ``report`` 子命令与 run 一样消费它渲染
+HTML + JSON 双轨。
 """
 
 import json
@@ -18,6 +19,7 @@ from .errors import InputError
 from .ingest.importer import import_files
 from .normalize import normalize_ledger
 from .params import load_rules_package
+from .subscription import detect_subscription_ledger
 
 SCHEMA_VERSION = 1
 
@@ -37,10 +39,12 @@ def _load_package():
     return load_rules_package(require_data_dir())
 
 
-def run_pipeline(files, platform=None, window_seconds=None, out_path=None):
-    """文件清单 → 全流程 dict（ingest→normalize→dedup→classify）。
+def run_pipeline(files, platform=None, window_seconds=None, out_path=None,
+                 with_report=False):
+    """文件清单 → 全流程 dict（①→⑤ 全链）。
 
     ``window_seconds``：None = 规则包默认；数值 = CLI 覆盖（进产物参数来源块）。
+    ``with_report``：True = 追加订阅段 + 结构化报告章节（``ledger["report"]``）。
     ``out_path``：给出即落盘（JSON，UTF-8、固定缩进）。
     返回 ``(ledger, exit_kind)``，exit_kind ∈ {"ok", "issues", "usage"}——
     与 import 的退出码契约同语义（文件级失败 2 / 行级问题 1 / 干净 0）。
@@ -70,9 +74,24 @@ def run_pipeline(files, platform=None, window_seconds=None, out_path=None):
     )
     ledger = classify_ledger(ledger, package.keywords)
 
+    if with_report:
+        from .report.sections import build_sections
+
+        ledger = detect_subscription_ledger(
+            ledger,
+            min_repeats=params.get("subscription_min_repeats"),
+            price_change_min_percent=params.get("price_change_min_percent"),
+            period_table=params.get("period_table"),
+            default_tolerance_days=params.get(
+                "subscription_interval_tolerance_days"),
+        )
+        ledger["report"] = build_sections(ledger)
+
     ledger["meta"]["pipeline"] = {
-        "stages": ["import", "normalize", "dedup", "classify"],
-        "report_pending": "report/subscription 接入计划于 M4（plan/05）",
+        "stages": (["import", "normalize", "dedup", "classify"]
+                   if not with_report
+                   else ["import", "normalize", "dedup", "classify",
+                         "subscription", "report"]),
     }
     if out_path is not None:
         _write_json(out_path, ledger)
@@ -144,3 +163,29 @@ def run_dedup_stage(ledger, package, window_seconds):
 
 def run_classify_stage(ledger, package):
     return classify_ledger(ledger, package.keywords)
+
+
+def run_subscription_stage(ledger, package):
+    """模块⑤ 订阅段（分段命令与 run 同一实现，K16）。"""
+    return detect_subscription_ledger(
+        ledger,
+        min_repeats=package.params.get("subscription_min_repeats"),
+        price_change_min_percent=package.params.get("price_change_min_percent"),
+        period_table=package.params.get("period_table"),
+        default_tolerance_days=package.params.get(
+            "subscription_interval_tolerance_days"),
+    )
+
+
+def build_report_sections(ledger):
+    """报告章节（消费流水线产物的唯一渲染源；含订阅段）。"""
+    from .report.sections import build_sections
+
+    return build_sections(ledger)
+
+
+def write_report_artifacts(ledger, html_path, json_path):
+    """报告双轨落盘（CLI report 子命令与 run --report 共用）。"""
+    from .report.renderers import write_report
+
+    write_report(ledger["report"], html_path, json_path)

@@ -44,12 +44,8 @@ _LEAVE_ENCODINGS = (
     "utf16be",
 )
 
-# 占位命令表：(命令名, 帮助语, 计划里程碑)——import 于 M2、normalize/dedup/
-# classify/run 于 M3 实装；report/bench 计划 M4
-_STUB_COMMANDS = [
-    ("report", "生成单文件 HTML 报告（模块⑤）", "M4"),
-    ("bench", "运行内置基准套件", "M4"),
-]
+# 占位命令表：空（M4 起 report/bench 实装；期望变更见 tests/test_cli_stubs.py）
+_STUB_COMMANDS = []
 
 
 def _load_package():
@@ -272,9 +268,9 @@ def _cmd_classify(args):
 
 
 def _cmd_run(args):
-    """run 子命令：import→normalize→dedup→classify 一条命令（M3 接前三段）。
+    """run 子命令：import→normalize→dedup→classify（→subscription→report）。
 
-    report/subscription 接入计划于 M4（plan/03 §六"M2 起逐步接入"口径）。
+    M4 起默认全链 ①→④；``--report`` 追加订阅识别 + 报告双轨产物。
     """
     from .pipeline import run_pipeline
 
@@ -283,8 +279,72 @@ def _cmd_run(args):
         platform=args.platform,
         window_seconds=args.window_seconds,
         out_path=args.out,
+        with_report=args.report,
     )
+    if args.report:
+        from .pipeline import write_report_artifacts
+
+        write_report_artifacts(ledger, args.report_html, args.report_json)
     return _finish_run(ledger, args.out)
+
+
+def _cmd_report(args):
+    """report 子命令：流水线产物 → 单文件 HTML + 机读 JSON 双轨（M4 实装）。
+
+    输入是 run/分段命令的产物 ledger JSON（含 report 章节段时直接消费；
+    只有前三段时先补订阅段再渲染）。退出码与 run 同语义。
+    """
+    from .pipeline import build_report_sections, write_report_artifacts
+
+    ledger = _read_ledger(args.ledger)
+    if "report" not in ledger:
+        # 上游只有前三段：补订阅段 + 章节段（与 run 同一实现）
+        from .pipeline import run_subscription_stage
+
+        package = _load_package()
+        ledger = run_subscription_stage(ledger, package)
+    ledger["report"] = build_report_sections(ledger)
+    write_report_artifacts(ledger, args.html, args.json)
+    subs = ledger["report"]["sections"]["subscription"]["subscriptions"]
+    print("报告已生成：%s（人读）+ %s（机读）；订阅 %d 个"
+          % (args.html, args.json, len(subs)))
+    return EXIT_OK
+
+
+def _cmd_bench(args):
+    """bench 子命令：内置基准套件（M4 实装）。
+
+    退出码：0 达标 / 1 未达标 / 2 用法与未知名（``--only`` 未知名 exit 2）。
+    """
+    from .bench_runner import run_all_probes, run_bench
+
+    only = args.only or None
+    results, code = run_bench(only=only)
+    for result in results:
+        status = "达标" if result["pass"] else "未达标"
+        print("[%s] %s：%s" % (result["suite"], status,
+                               result.get("notes", "")))
+        for key in ("accuracy", "f1", "precision", "recall",
+                    "false_positives", "hit", "total"):
+            if key in result:
+                print("    %s = %s" % (key, result[key]))
+        if not result["pass"]:
+            for seg in result.get("segments", []) or [result]:
+                for check in seg.get("checks", []):
+                    if not check.get("ok", True):
+                        print("    未过项：%s" % check)
+                mismatches = seg.get("mismatches", [])
+                for m in mismatches[:10]:
+                    print("    不匹配：%s" % m)
+    if args.probe:
+        print("探活（可证伪）：")
+        probes_ok = True
+        for name, ok, detail in run_all_probes():
+            probes_ok = probes_ok and ok
+            print("  [%s] %s：%s" % (name, "通过" if ok else "失败", detail))
+        if not probes_ok:
+            return EXIT_ISSUES
+    return code
 
 
 def _finish_run(ledger, out_path):
@@ -356,8 +416,27 @@ def build_parser():
                     help="显式指定平台（wechat/alipay/bank）；缺省按文件名前缀识别")
     sp.add_argument("--window-seconds", type=int, default=None,
                     help="去重时间窗口秒数（覆盖规则包默认值）")
+    sp.add_argument("--report", action="store_true", default=False,
+                    help="追加订阅识别 + 报告双轨产物（①→⑤ 全链，M4）")
+    sp.add_argument("--report-html", default="report.html",
+                    help="报告 HTML 路径（默认 ./report.html；--report 时生效）")
+    sp.add_argument("--report-json", default="report_data.json",
+                    help="机读报告路径（默认 ./report_data.json；--report 时生效）")
     sp.add_argument("--out", default="ledger-full.json", help="输出 JSON 路径")
     sp.set_defaults(func=_cmd_run)
+
+    sp = sub.add_parser("report", help="生成单文件 HTML 报告 + 机读 JSON（模块⑤，M4 实装）")
+    sp.add_argument("--ledger", default="ledger-full.json", help="上游 ledger JSON（run 产物）")
+    sp.add_argument("--html", default="report.html", help="报告 HTML 输出路径")
+    sp.add_argument("--json", default="report_data.json", help="机读 JSON 输出路径")
+    sp.set_defaults(func=_cmd_report)
+
+    sp = sub.add_parser("bench", help="运行内置基准套件 B1–B4（M4 实装）")
+    sp.add_argument("--only", nargs="*", default=None,
+                    help="只跑指定套件（B1/B2/B3/B4）；未知名 exit 2")
+    sp.add_argument("--probe", action="store_true", default=False,
+                    help="附带探活检查（注入缺陷必报未达标）")
+    sp.set_defaults(func=_cmd_bench)
 
     for name, help_text, milestone in _STUB_COMMANDS:
         sp = sub.add_parser(name, help="%s（计划 %s）" % (help_text, milestone))

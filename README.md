@@ -4,9 +4,21 @@
 
 > 纯本地 Python CLI（≥ 3.8，**零第三方运行时依赖**）+ 单文件 HTML 报告 · 零上传 · 零账号 · 零遥测 · **不使用 LLM**，结论 100% 由确定性规则产生
 
-**当前状态**：M0「计划先行 + 可运行骨架」完成（2026-10-15）。五个功能模块将于 M2–M4 逐步可用；骨架阶段除 `--help` / `--version` / `selftest` 外的子命令为占位（打印"尚未实现（计划于 Mx）"并返回退出码 2）。开发进程与交付口径见 [plan/05-里程碑.md](plan/05-里程碑.md)。
+**当前状态**：M4「内置基准 + 报告」完成（2026-10-15）。CLI 八个子命令全部实装（`import` / `normalize` / `dedup` / `classify` / `report` / `run` / `bench` / `selftest`）；`run --report` 一条命令出**全链产物**（净流水 + 语义 + 订阅 + 单文件 HTML 报告 + 机读 JSON）。内置基准 B1–B4 全绿（指标见下表）。开发进程与交付口径见 [plan/05-里程碑.md](plan/05-里程碑.md)。
 
-## 快速开始（骨架阶段）
+## 内置基准指标（B1–B4，门槛随规则包下发）
+
+| 套件 | 口径 | 指标 | 门槛（数据） | 结果（M4 实测） |
+|---|---|---|---|---|
+| B1 导入 | 真值 77 行行级三态一致率 | F1 = 1.0 | `bench_b1_row_f1_min = 0.95` | ✅ 达标 |
+| B2 去重 | 真值 5 簇 + 代表笔 + 5 反例 must_not_merge（14 项对账） | 准确率 1.0 / 误报 0 | `accuracy_min = 0.95` / `false_positive_max = 0` | ✅ 达标 |
+| B2-r 边界双向对账 | 窗口端点公式推导（引擎）vs 粗扫+细扫穷举恢复（独立路径） | 5 项互验全过（Δt=W 命中 / W+1s 不命中 / 链式传播 / 差 1 分不并 / 划分一致） | 同上 | ✅ 达标 |
+| B3 语义 | 真值 67 行逐行标签（未知 fallthrough 一票否决） | 准确率 1.0 | `bench_b3_label_accuracy_min = 0.98` | ✅ 达标 |
+| B4 订阅 | 真值 6 形态实例级 P/R/F1 + 涨价记录 + 干扰行不判订阅 | F1 = 1.0 | `bench_b4_f1_min = 0.9` | ✅ 达标 |
+
+复跑：`brc bench`（exit 0 = 达标 / 1 = 未达标 / 2 = 用法与未知名）；`brc bench --probe` 附带探活检查（四套件各注入一处缺陷，基准必须报未达标——"全绿"可被证伪）。
+
+## 快速开始
 
 要求：Python ≥ 3.8（开发与 CI 矩阵：3.8 与 3.12）。
 
@@ -15,16 +27,21 @@ git clone https://github.com/yuluo554/bill-reconciler
 cd bill-reconciler
 
 # 免安装直跑（仓库根目录）
-python -m bill_reconciler --help
 python -m bill_reconciler selftest
+
+# 一条命令出结果（净流水 + 语义 + 订阅 + 单文件 HTML 报告）
+python -m bill_reconciler run 你的微信账单.csv 你的支付宝账单.csv 你的银行账单.csv --report --report-html report.html --report-json report_data.json
+
+# 内置基准（B1–B4，退出码 0 = 达标）
+python -m bill_reconciler bench
 
 # 或安装后使用（console script 两个名字等价）
 python -m pip install -e .
-bill-reconciler --help
-brc selftest
+bill-reconciler run --help
+brc bench
 ```
 
-> Windows 上如果 `python` 是商店占位符，请用 `py`（如 `py -m bill_reconciler --help`）。
+> Windows 上如果 `python` 是商店占位符，请用 `py`（如 `py -m bill_reconciler run --help`）。
 
 ## CLI 命令（最终态）
 
