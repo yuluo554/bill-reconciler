@@ -1,0 +1,61 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+build/
+dist/
+*.spec
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# 运行产物 / 本地报告（生成物不入仓）
+output/
+reports/
+release/
+*.log
+tmp/
+.tmp/
+*.bak
+selftest.json
+
+# 隔离的包管理器 store（本地验证用）
+.clean-store/
+.clean-venv/
+
+# 环境与密钥
+.env
+*.env
+*.key
+secrets.*
+
+# 隐私与本地数据（不入库）
+_private/
+*_private/
+
+# IDE / 系统
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ---------------------------------------------------------------------------
+# 样例数据目录豁免说明（重要）
+# ---------------------------------------------------------------------------
+# 本仓库的合成账单样例（data/samples/ 下 *.csv / *.xlsx）**是要入仓的**——
+# 它们是"可直接复制的示例输入"与三态演示载体，由 tools/gen_samples.py 程序化
+# 产出并配 --check 位级守门（禁手改）。
+# 因此**不要**在此处用 `*.csv` 一类通配把它们整体忽略；如需忽略某类临时 CSV，
+# 请用精确路径（如 `/scratch/*.csv`），勿用全仓通配。
+#
+# 用户真实账单**永不入仓**：真实账单只在本机处理；`_private/` 与 `data/**/_private/`
+# 已在此忽略，用于放置本机私有文件（如解密后的真实账单），确保不会被 `git add -A` 带上。
+data/**/_private/
