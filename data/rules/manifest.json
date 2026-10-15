@@ -1,0 +1,147 @@
+{
+  "schema_version": 1,
+  "kind": "rules-manifest",
+  "ruleset_version": 1,
+  "generator": "tools/gen_rules.py",
+  "generator_version": 1,
+  "source_note": "经验默认（非官方）：全部默认值为经验示例值，用户可经 CLI flag 覆盖",
+  "params": [
+    {
+      "id": "dedup_window_seconds",
+      "value": 120,
+      "unit": "秒",
+      "user_configurable": true,
+      "cli_flag": "--window-seconds",
+      "source": "经验默认（非官方）：全部默认值为经验示例值，用户可经 CLI flag 覆盖",
+      "notes": "跨平台去重时间窗口，闭区间 |Δt| ≤ W；恰好等于 W 应合并"
+    },
+    {
+      "id": "subscription_min_repeats",
+      "value": 3,
+      "unit": "次",
+      "user_configurable": true,
+      "cli_flag": "--min-repeats",
+      "source": "经验默认（非官方）：全部默认值为经验示例值，用户可经 CLI flag 覆盖",
+      "notes": "周期订阅最小重复次数（含首期）"
+    },
+    {
+      "id": "subscription_interval_tolerance_days",
+      "value": 2,
+      "unit": "天",
+      "user_configurable": true,
+      "cli_flag": "--interval-tolerance-days",
+      "source": "经验默认（非官方）：全部默认值为经验示例值，用户可经 CLI flag 覆盖",
+      "notes": "周期表内各周期未单独覆盖时的间隔容差默认值"
+    },
+    {
+      "id": "price_change_min_percent",
+      "value": 2.0,
+      "unit": "%",
+      "user_configurable": true,
+      "cli_flag": "--price-change-percent",
+      "source": "经验默认（非官方）：全部默认值为经验示例值，用户可经 CLI flag 覆盖",
+      "notes": "涨价判定阈值：相邻周期金额变化 ≥ 该百分比记一条涨价记录"
+    },
+    {
+      "id": "platform_priority",
+      "value": [
+        "wechat",
+        "alipay",
+        "bank"
+      ],
+      "unit": "平台次序",
+      "user_configurable": false,
+      "cli_flag": null,
+      "source": "经验默认（非官方）：全部默认值为经验示例值，用户可经 CLI flag 覆盖",
+      "notes": "去重簇代表笔选择排序键（时间最早 → 本次序 → 来源行号）"
+    },
+    {
+      "id": "header_locate_k",
+      "value": 2,
+      "unit": "列命中数",
+      "user_configurable": false,
+      "cli_flag": null,
+      "source": "经验默认（非官方）：全部默认值为经验示例值，用户可经 CLI flag 覆盖",
+      "notes": "表头定位：候选行命中的预期列名数 ≥ K 即判为表头"
+    },
+    {
+      "id": "header_locate_max_scan_lines",
+      "value": 20,
+      "unit": "行",
+      "user_configurable": false,
+      "cli_flag": null,
+      "source": "经验默认（非官方）：全部默认值为经验示例值，用户可经 CLI flag 覆盖",
+      "notes": "表头定位扫描上限：只在前 N 行内找表头，超出即文件级失败"
+    },
+    {
+      "id": "period_table",
+      "value": [
+        {
+          "id": "monthly",
+          "label": "月付",
+          "interval_days": 30,
+          "tolerance_days": 2
+        },
+        {
+          "id": "quarterly",
+          "label": "季付",
+          "interval_days": 91,
+          "tolerance_days": 3
+        },
+        {
+          "id": "yearly",
+          "label": "年付",
+          "interval_days": 365,
+          "tolerance_days": 5
+        }
+      ],
+      "unit": "周期表",
+      "user_configurable": false,
+      "cli_flag": null,
+      "source": "经验默认（非官方）：全部默认值为经验示例值，用户可经 CLI flag 覆盖",
+      "notes": "订阅周期判定表：相邻间隔落在 interval_days ± tolerance_days 内即视为同周期"
+    }
+  ],
+  "bench_thresholds": [
+    {
+      "id": "bench_b1_row_f1_min",
+      "value": 0.95,
+      "unit": "F1",
+      "source": "经验默认（非官方）：全部默认值为经验示例值，用户可经 CLI flag 覆盖",
+      "notes": "B1 导入：行级三态字段级 P/R/F1 下限"
+    },
+    {
+      "id": "bench_b2_cluster_accuracy_min",
+      "value": 0.95,
+      "unit": "准确率",
+      "source": "经验默认（非官方）：全部默认值为经验示例值，用户可经 CLI flag 覆盖",
+      "notes": "B2 去重：簇级判定（应合并/不应合并）准确率下限"
+    },
+    {
+      "id": "bench_b2_false_positive_max",
+      "value": 0,
+      "unit": "簇",
+      "source": "经验默认（非官方）：全部默认值为经验示例值，用户可经 CLI flag 覆盖",
+      "notes": "B2 去重：误报（把不应合并的合并）允许上限"
+    },
+    {
+      "id": "bench_b3_label_accuracy_min",
+      "value": 0.98,
+      "unit": "准确率",
+      "source": "经验默认（非官方）：全部默认值为经验示例值，用户可经 CLI flag 覆盖",
+      "notes": "B3 语义：逐行标签准确率下限（含『未知』可区分性）"
+    },
+    {
+      "id": "bench_b4_f1_min",
+      "value": 0.9,
+      "unit": "F1",
+      "source": "经验默认（非官方）：全部默认值为经验示例值，用户可经 CLI flag 覆盖",
+      "notes": "B4 订阅/涨价：周期条目与涨价记录 F1 下限"
+    }
+  ],
+  "files": {
+    "manifest": "data/rules/manifest.json",
+    "keywords": "data/rules/keywords.json",
+    "aliases": "data/rules/aliases.json"
+  }
+}

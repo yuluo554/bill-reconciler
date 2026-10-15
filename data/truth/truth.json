@@ -1,0 +1,1324 @@
+{
+  "schema_version": 1,
+  "kind": "truth-ledger",
+  "generator": "tools/gen_samples.py",
+  "generator_version": 1,
+  "seed": 20261015,
+  "basis_date": "2026-10-15",
+  "rules_dependency": "参数口径引用 data/rules/manifest.json（dedup_window_seconds=120 / subscription_min_repeats=3 / period_table 等）；真值只存输入与期望，观测由基准运行时实算（禁止观测类字段，门禁扫描面见测试）",
+  "files": [
+    {
+      "file": "data/samples/wechat-demo-01.csv",
+      "platform": "wechat",
+      "format": "csv",
+      "encoding_expected": "utf-8",
+      "file_status": "ok",
+      "file_issue_codes": [],
+      "note": "微信式广告行（2 行）+ 核心形态"
+    },
+    {
+      "file": "data/samples/wechat-demo-02.csv",
+      "platform": "wechat",
+      "format": "csv",
+      "encoding_expected": "gbk",
+      "file_status": "ok",
+      "file_issue_codes": [],
+      "note": "GBK 编码 + 千分位 + 3 类行级异常"
+    },
+    {
+      "file": "data/samples/wechat-demo-03.xlsx",
+      "platform": "wechat",
+      "format": "xlsx",
+      "encoding_expected": "xlsx",
+      "file_status": "ok",
+      "file_issue_codes": [],
+      "note": "XLSX（自写确定性 writer；ZIP_STORED + 固定 date_time）"
+    },
+    {
+      "file": "data/samples/alipay-demo-01.csv",
+      "platform": "alipay",
+      "format": "csv",
+      "encoding_expected": "gb18030",
+      "file_status": "ok",
+      "file_issue_codes": [],
+      "note": "支付宝式广告行（3 行）；GB18030 编码"
+    },
+    {
+      "file": "data/samples/alipay-demo-02.csv",
+      "platform": "alipay",
+      "format": "csv",
+      "encoding_expected": "utf-8-sig",
+      "file_status": "ok",
+      "file_issue_codes": [],
+      "note": "UTF-8 BOM + 列名漂移 + 未登记列（商户编号）"
+    },
+    {
+      "file": "data/samples/bank-demo-01.csv",
+      "platform": "bank",
+      "format": "csv",
+      "encoding_expected": "utf-8-sig",
+      "file_status": "ok",
+      "file_issue_codes": [],
+      "note": "收支分列 + 行级异常 4 类"
+    },
+    {
+      "file": "data/samples/bank-demo-02.csv",
+      "platform": "bank",
+      "format": "csv",
+      "encoding_expected": "gbk",
+      "file_status": "ok",
+      "file_issue_codes": [],
+      "note": "GBK + 千分位"
+    },
+    {
+      "file": "data/samples/bank-demo-03.xlsx",
+      "platform": "bank",
+      "format": "xlsx",
+      "encoding_expected": "xlsx",
+      "file_status": "ok",
+      "file_issue_codes": [],
+      "note": "XLSX：季付/年付订阅（跨年跨度）"
+    }
+  ],
+  "coverage": {
+    "import": {
+      "enc_utf8_bom": {
+        "total": 2,
+        "sampled": 2,
+        "items": [
+          "alipay-demo-02.csv",
+          "bank-demo-01.csv"
+        ]
+      },
+      "enc_utf8_no_bom": {
+        "total": 1,
+        "sampled": 1,
+        "items": [
+          "wechat-demo-01.csv"
+        ]
+      },
+      "enc_gbk": {
+        "total": 2,
+        "sampled": 2,
+        "items": [
+          "bank-demo-02.csv",
+          "wechat-demo-02.csv"
+        ]
+      },
+      "enc_gb18030": {
+        "total": 1,
+        "sampled": 1,
+        "items": [
+          "alipay-demo-01.csv"
+        ]
+      },
+      "enc_bad": {
+        "total": 1,
+        "sampled": 1,
+        "items": [
+          "wechat-demo-bad-encoding.csv"
+        ]
+      },
+      "header_ads_alipay": {
+        "total": 2,
+        "sampled": 2,
+        "items": [
+          "alipay-demo-01.csv",
+          "alipay-demo-02.csv"
+        ]
+      },
+      "header_ads_wechat": {
+        "total": 2,
+        "sampled": 2,
+        "items": [
+          "wechat-demo-01.csv",
+          "wechat-demo-02.csv"
+        ]
+      },
+      "col_synonym_variant": {
+        "total": 1,
+        "sampled": 1,
+        "items": [
+          "交易对象"
+        ]
+      },
+      "col_space_variant": {
+        "total": 1,
+        "sampled": 1,
+        "items": [
+          "金额(元) / 收/支 前后空格"
+        ]
+      },
+      "col_unregistered": {
+        "total": 1,
+        "sampled": 1,
+        "items": [
+          "商户编号"
+        ]
+      },
+      "amount_thousands": {
+        "total": 3,
+        "sampled": 3,
+        "items": [
+          "alipay-demo-02.csv",
+          "bank-demo-02.csv",
+          "wechat-demo-02.csv"
+        ]
+      },
+      "amount_currency_symbol": {
+        "total": 2,
+        "sampled": 2,
+        "items": [
+          "alipay-demo-02.csv",
+          "wechat-demo-01.csv"
+        ]
+      },
+      "amount_split_columns": {
+        "total": 3,
+        "sampled": 3,
+        "items": [
+          "bank-demo-01.csv",
+          "bank-demo-02.csv",
+          "bank-demo-03.xlsx"
+        ]
+      },
+      "amount_direction_column": {
+        "total": 3,
+        "sampled": 3,
+        "items": [
+          "alipay-demo-01.csv",
+          "alipay-demo-02.csv",
+          "wechat-demo-01.csv"
+        ]
+      },
+      "amount_neutral": {
+        "total": 1,
+        "sampled": 1,
+        "items": [
+          "alipay-demo-02.csv"
+        ]
+      },
+      "row_amount_not_numeric": {
+        "total": 1,
+        "sampled": 1,
+        "items": [
+          "bank-demo-01.csv"
+        ]
+      },
+      "row_amount_missing": {
+        "total": 2,
+        "sampled": 2,
+        "items": [
+          "bank-demo-01.csv",
+          "wechat-demo-02.csv"
+        ]
+      },
+      "row_time_unparseable": {
+        "total": 2,
+        "sampled": 2,
+        "items": [
+          "bank-demo-01.csv",
+          "wechat-demo-02.csv"
+        ]
+      },
+      "row_column_count_mismatch": {
+        "total": 2,
+        "sampled": 2,
+        "items": [
+          "bank-demo-01.csv",
+          "wechat-demo-02.csv"
+        ]
+      },
+      "file_empty": {
+        "total": 1,
+        "sampled": 1,
+        "items": [
+          "alipay-demo-empty.csv"
+        ]
+      },
+      "file_header_only": {
+        "total": 1,
+        "sampled": 1,
+        "items": [
+          "alipay-demo-header-only.csv"
+        ]
+      },
+      "file_missing_required_column": {
+        "total": 1,
+        "sampled": 1,
+        "items": [
+          "bank-demo-missing-col.csv"
+        ]
+      },
+      "file_bad_encoding": {
+        "total": 1,
+        "sampled": 1,
+        "items": [
+          "wechat-demo-bad-encoding.csv"
+        ]
+      },
+      "ftype_wechat_csv": {
+        "total": 2,
+        "sampled": 2,
+        "items": [
+          "wechat-demo-01.csv",
+          "wechat-demo-02.csv"
+        ]
+      },
+      "ftype_wechat_xlsx": {
+        "total": 1,
+        "sampled": 1,
+        "items": [
+          "wechat-demo-03.xlsx"
+        ]
+      },
+      "ftype_alipay_csv": {
+        "total": 2,
+        "sampled": 2,
+        "items": [
+          "alipay-demo-01.csv",
+          "alipay-demo-02.csv"
+        ]
+      },
+      "ftype_bank_csv": {
+        "total": 2,
+        "sampled": 2,
+        "items": [
+          "bank-demo-01.csv",
+          "bank-demo-02.csv"
+        ]
+      },
+      "ftype_bank_xlsx": {
+        "total": 1,
+        "sampled": 1,
+        "items": [
+          "bank-demo-03.xlsx"
+        ]
+      }
+    },
+    "semantic": {
+      "消费": {
+        "total": 1,
+        "sampled": 1,
+        "items": [
+          "C1-w"
+        ]
+      },
+      "本人转账": {
+        "total": 5,
+        "sampled": 5,
+        "items": [
+          "TR-卡A",
+          "TR-卡A中性",
+          "TR-卡B-bank",
+          "TR-卡B入",
+          "TR-卡B出"
+        ]
+      },
+      "退款": {
+        "total": 2,
+        "sampled": 2,
+        "items": [
+          "R10-退款1",
+          "R10-退款2"
+        ]
+      },
+      "AA回款": {
+        "total": 2,
+        "sampled": 2,
+        "items": [
+          "R20-AA1",
+          "R20-AA2"
+        ]
+      },
+      "报销": {
+        "total": 1,
+        "sampled": 1,
+        "items": [
+          "R30-报销"
+        ]
+      },
+      "未知": {
+        "total": 3,
+        "sampled": 3,
+        "items": [
+          "UNK-其他方向",
+          "UNK-医院",
+          "UNK-李四"
+        ]
+      },
+      "distractor_keyword_wrong_direction": {
+        "total": 1,
+        "sampled": 1,
+        "items": [
+          "DIST-退款词"
+        ]
+      },
+      "distractor_transfer_word_income": {
+        "total": 1,
+        "sampled": 1,
+        "items": [
+          "UNK-张三转账"
+        ]
+      }
+    },
+    "dedup": {
+      "cross_platform_2_platform": {
+        "total": 2,
+        "sampled": 2,
+        "items": [
+          "C1",
+          "C4"
+        ]
+      },
+      "cross_platform_3_platform": {
+        "total": 1,
+        "sampled": 1,
+        "items": [
+          "C2"
+        ]
+      },
+      "boundary_exactly_window": {
+        "total": 1,
+        "sampled": 1,
+        "items": [
+          "C3"
+        ]
+      },
+      "boundary_beyond_window": {
+        "total": 1,
+        "sampled": 1,
+        "items": [
+          "FP-咖啡-W+1"
+        ]
+      },
+      "same_platform_candidate": {
+        "total": 1,
+        "sampled": 1,
+        "items": [
+          "S1"
+        ]
+      },
+      "fp_same_amount_over_window": {
+        "total": 2,
+        "sampled": 2,
+        "items": [
+          "FP-便利店跨天",
+          "FP-咖啡跨天"
+        ]
+      },
+      "fp_diff_amount_within_window": {
+        "total": 1,
+        "sampled": 1,
+        "items": [
+          "FP-快餐-a2"
+        ]
+      },
+      "fp_one_cent_within_window": {
+        "total": 1,
+        "sampled": 1,
+        "items": [
+          "FP-8801"
+        ]
+      }
+    },
+    "subscription": {
+      "monthly_plain": {
+        "total": 1,
+        "sampled": 1,
+        "items": [
+          "SUB-视频"
+        ]
+      },
+      "price_rise": {
+        "total": 1,
+        "sampled": 1,
+        "items": [
+          "SUB-音乐"
+        ]
+      },
+      "quarterly": {
+        "total": 1,
+        "sampled": 1,
+        "items": [
+          "SUB-云盘"
+        ]
+      },
+      "yearly": {
+        "total": 1,
+        "sampled": 1,
+        "items": [
+          "SUB-年付"
+        ]
+      },
+      "gap_interrupted": {
+        "total": 1,
+        "sampled": 1,
+        "items": [
+          "SUB-健身"
+        ]
+      },
+      "non_periodic_distractor": {
+        "total": 1,
+        "sampled": 1,
+        "items": [
+          "DIST-打车"
+        ]
+      }
+    }
+  },
+  "expect_import": {
+    "data/samples/wechat-demo-01.csv": {
+      "file_status": "ok",
+      "file_issue_codes": [],
+      "column_issues": [],
+      "rows": {
+        "wechat-demo-01.csv#4": {
+          "status": "ok"
+        },
+        "wechat-demo-01.csv#5": {
+          "status": "ok"
+        },
+        "wechat-demo-01.csv#6": {
+          "status": "ok"
+        },
+        "wechat-demo-01.csv#7": {
+          "status": "ok"
+        },
+        "wechat-demo-01.csv#8": {
+          "status": "ok"
+        },
+        "wechat-demo-01.csv#9": {
+          "status": "ok"
+        },
+        "wechat-demo-01.csv#10": {
+          "status": "ok"
+        },
+        "wechat-demo-01.csv#11": {
+          "status": "ok"
+        },
+        "wechat-demo-01.csv#12": {
+          "status": "ok"
+        },
+        "wechat-demo-01.csv#13": {
+          "status": "ok"
+        },
+        "wechat-demo-01.csv#14": {
+          "status": "ok"
+        },
+        "wechat-demo-01.csv#15": {
+          "status": "ok"
+        },
+        "wechat-demo-01.csv#16": {
+          "status": "ok"
+        },
+        "wechat-demo-01.csv#17": {
+          "status": "ok"
+        },
+        "wechat-demo-01.csv#18": {
+          "status": "ok"
+        },
+        "wechat-demo-01.csv#19": {
+          "status": "ok"
+        },
+        "wechat-demo-01.csv#20": {
+          "status": "ok"
+        },
+        "wechat-demo-01.csv#21": {
+          "status": "ok"
+        },
+        "wechat-demo-01.csv#22": {
+          "status": "ok"
+        },
+        "wechat-demo-01.csv#23": {
+          "status": "ok"
+        },
+        "wechat-demo-01.csv#24": {
+          "status": "ok"
+        }
+      }
+    },
+    "data/samples/wechat-demo-02.csv": {
+      "file_status": "ok",
+      "file_issue_codes": [],
+      "column_issues": [],
+      "rows": {
+        "wechat-demo-02.csv#5": {
+          "status": "ok"
+        },
+        "wechat-demo-02.csv#6": {
+          "status": "invalid",
+          "code": "time_unparseable"
+        },
+        "wechat-demo-02.csv#7": {
+          "status": "invalid",
+          "code": "amount_missing"
+        },
+        "wechat-demo-02.csv#8": {
+          "status": "invalid",
+          "code": "column_count_mismatch"
+        },
+        "wechat-demo-02.csv#9": {
+          "status": "ok"
+        },
+        "wechat-demo-02.csv#10": {
+          "status": "ok"
+        }
+      }
+    },
+    "data/samples/wechat-demo-03.xlsx": {
+      "file_status": "ok",
+      "file_issue_codes": [],
+      "column_issues": [],
+      "rows": {
+        "wechat-demo-03.xlsx#2": {
+          "status": "ok"
+        },
+        "wechat-demo-03.xlsx#3": {
+          "status": "ok"
+        },
+        "wechat-demo-03.xlsx#4": {
+          "status": "ok"
+        },
+        "wechat-demo-03.xlsx#5": {
+          "status": "ok"
+        },
+        "wechat-demo-03.xlsx#6": {
+          "status": "ok"
+        },
+        "wechat-demo-03.xlsx#7": {
+          "status": "ok"
+        }
+      }
+    },
+    "data/samples/alipay-demo-01.csv": {
+      "file_status": "ok",
+      "file_issue_codes": [],
+      "column_issues": [],
+      "rows": {
+        "alipay-demo-01.csv#5": {
+          "status": "ok"
+        },
+        "alipay-demo-01.csv#6": {
+          "status": "ok"
+        },
+        "alipay-demo-01.csv#7": {
+          "status": "ok"
+        },
+        "alipay-demo-01.csv#8": {
+          "status": "ok"
+        },
+        "alipay-demo-01.csv#9": {
+          "status": "ok"
+        },
+        "alipay-demo-01.csv#10": {
+          "status": "ok"
+        },
+        "alipay-demo-01.csv#11": {
+          "status": "ok"
+        },
+        "alipay-demo-01.csv#12": {
+          "status": "ok"
+        },
+        "alipay-demo-01.csv#13": {
+          "status": "ok"
+        },
+        "alipay-demo-01.csv#14": {
+          "status": "ok"
+        },
+        "alipay-demo-01.csv#15": {
+          "status": "ok"
+        },
+        "alipay-demo-01.csv#16": {
+          "status": "ok"
+        },
+        "alipay-demo-01.csv#17": {
+          "status": "ok"
+        },
+        "alipay-demo-01.csv#18": {
+          "status": "ok"
+        },
+        "alipay-demo-01.csv#19": {
+          "status": "ok"
+        },
+        "alipay-demo-01.csv#20": {
+          "status": "ok"
+        }
+      }
+    },
+    "data/samples/alipay-demo-02.csv": {
+      "file_status": "ok",
+      "file_issue_codes": [],
+      "column_issues": [
+        {
+          "kind": "unknown",
+          "code": "unknown_column",
+          "column": "商户编号"
+        }
+      ],
+      "rows": {
+        "alipay-demo-02.csv#4": {
+          "status": "ok"
+        },
+        "alipay-demo-02.csv#5": {
+          "status": "ok"
+        },
+        "alipay-demo-02.csv#6": {
+          "status": "ok"
+        },
+        "alipay-demo-02.csv#7": {
+          "status": "ok"
+        },
+        "alipay-demo-02.csv#8": {
+          "status": "unknown",
+          "code": "unmapped_direction"
+        },
+        "alipay-demo-02.csv#9": {
+          "status": "ok"
+        }
+      }
+    },
+    "data/samples/bank-demo-01.csv": {
+      "file_status": "ok",
+      "file_issue_codes": [],
+      "column_issues": [],
+      "rows": {
+        "bank-demo-01.csv#4": {
+          "status": "ok"
+        },
+        "bank-demo-01.csv#5": {
+          "status": "invalid",
+          "code": "amount_not_numeric"
+        },
+        "bank-demo-01.csv#6": {
+          "status": "invalid",
+          "code": "amount_missing"
+        },
+        "bank-demo-01.csv#7": {
+          "status": "invalid",
+          "code": "time_unparseable"
+        },
+        "bank-demo-01.csv#8": {
+          "status": "invalid",
+          "code": "column_count_mismatch"
+        },
+        "bank-demo-01.csv#9": {
+          "status": "ok"
+        },
+        "bank-demo-01.csv#10": {
+          "status": "ok"
+        }
+      }
+    },
+    "data/samples/bank-demo-02.csv": {
+      "file_status": "ok",
+      "file_issue_codes": [],
+      "column_issues": [],
+      "rows": {
+        "bank-demo-02.csv#3": {
+          "status": "ok"
+        },
+        "bank-demo-02.csv#4": {
+          "status": "ok"
+        },
+        "bank-demo-02.csv#5": {
+          "status": "ok"
+        },
+        "bank-demo-02.csv#6": {
+          "status": "ok"
+        },
+        "bank-demo-02.csv#7": {
+          "status": "ok"
+        },
+        "bank-demo-02.csv#8": {
+          "status": "ok"
+        }
+      }
+    },
+    "data/samples/bank-demo-03.xlsx": {
+      "file_status": "ok",
+      "file_issue_codes": [],
+      "column_issues": [],
+      "rows": {
+        "bank-demo-03.xlsx#2": {
+          "status": "ok"
+        },
+        "bank-demo-03.xlsx#3": {
+          "status": "ok"
+        },
+        "bank-demo-03.xlsx#4": {
+          "status": "ok"
+        },
+        "bank-demo-03.xlsx#5": {
+          "status": "ok"
+        },
+        "bank-demo-03.xlsx#6": {
+          "status": "ok"
+        },
+        "bank-demo-03.xlsx#7": {
+          "status": "ok"
+        },
+        "bank-demo-03.xlsx#8": {
+          "status": "ok"
+        },
+        "bank-demo-03.xlsx#9": {
+          "status": "ok"
+        },
+        "bank-demo-03.xlsx#10": {
+          "status": "ok"
+        }
+      }
+    }
+  },
+  "expect_semantic": {
+    "wechat-demo-01.csv#4": {
+      "label": "消费",
+      "scenario": "SUB-健身-1",
+      "note": ""
+    },
+    "wechat-demo-01.csv#5": {
+      "label": "消费",
+      "scenario": "SUB-健身-2",
+      "note": ""
+    },
+    "wechat-demo-01.csv#6": {
+      "label": "消费",
+      "scenario": "SUB-健身-3",
+      "note": ""
+    },
+    "wechat-demo-01.csv#7": {
+      "label": "消费",
+      "scenario": "SUB-视频-1",
+      "note": ""
+    },
+    "wechat-demo-01.csv#9": {
+      "label": "消费",
+      "scenario": "SUB-健身-4",
+      "note": ""
+    },
+    "wechat-demo-01.csv#10": {
+      "label": "消费",
+      "scenario": "C1-w",
+      "note": ""
+    },
+    "wechat-demo-01.csv#11": {
+      "label": "消费",
+      "scenario": "SUB-视频-2",
+      "note": ""
+    },
+    "wechat-demo-01.csv#12": {
+      "label": "消费",
+      "scenario": "FP-便利店-w2",
+      "note": ""
+    },
+    "wechat-demo-01.csv#13": {
+      "label": "消费",
+      "scenario": "C2-w",
+      "note": ""
+    },
+    "wechat-demo-01.csv#14": {
+      "label": "消费",
+      "scenario": "C3-w",
+      "note": ""
+    },
+    "wechat-demo-01.csv#15": {
+      "label": "消费",
+      "scenario": "FP-咖啡-w1",
+      "note": ""
+    },
+    "wechat-demo-01.csv#17": {
+      "label": "消费",
+      "scenario": "FP-咖啡-w2",
+      "note": ""
+    },
+    "wechat-demo-01.csv#18": {
+      "label": "消费",
+      "scenario": "S1-w1",
+      "note": ""
+    },
+    "wechat-demo-01.csv#19": {
+      "label": "消费",
+      "scenario": "S1-w2",
+      "note": ""
+    },
+    "wechat-demo-01.csv#20": {
+      "label": "消费",
+      "scenario": "DIST-退款词",
+      "note": ""
+    },
+    "wechat-demo-01.csv#21": {
+      "label": "本人转账",
+      "scenario": "TR-卡A",
+      "note": ""
+    },
+    "wechat-demo-01.csv#22": {
+      "label": "未知",
+      "scenario": "UNK-李四",
+      "note": ""
+    },
+    "wechat-demo-01.csv#23": {
+      "label": "消费",
+      "scenario": "SUB-视频-3",
+      "note": ""
+    },
+    "wechat-demo-02.csv#5": {
+      "label": "消费",
+      "scenario": null,
+      "note": ""
+    },
+    "wechat-demo-02.csv#9": {
+      "label": "消费",
+      "scenario": null,
+      "note": ""
+    },
+    "wechat-demo-02.csv#10": {
+      "label": "消费",
+      "scenario": null,
+      "note": ""
+    },
+    "wechat-demo-03.xlsx#2": {
+      "label": "退款",
+      "scenario": "R10-退款1",
+      "note": ""
+    },
+    "wechat-demo-03.xlsx#3": {
+      "label": "AA回款",
+      "scenario": "R20-AA1",
+      "note": ""
+    },
+    "wechat-demo-03.xlsx#4": {
+      "label": "本人转账",
+      "scenario": "TR-卡B入",
+      "note": ""
+    },
+    "wechat-demo-03.xlsx#5": {
+      "label": "消费",
+      "scenario": "C4-w",
+      "note": ""
+    },
+    "wechat-demo-03.xlsx#6": {
+      "label": "消费",
+      "scenario": null,
+      "note": ""
+    },
+    "wechat-demo-03.xlsx#7": {
+      "label": "消费",
+      "scenario": null,
+      "note": ""
+    },
+    "alipay-demo-01.csv#5": {
+      "label": "消费",
+      "scenario": "SUB-音乐-1",
+      "note": ""
+    },
+    "alipay-demo-01.csv#6": {
+      "label": "消费",
+      "scenario": "SUB-音乐-2",
+      "note": ""
+    },
+    "alipay-demo-01.csv#7": {
+      "label": "消费",
+      "scenario": "SUB-音乐-3",
+      "note": ""
+    },
+    "alipay-demo-01.csv#8": {
+      "label": "未知",
+      "scenario": "UNK-医院",
+      "note": ""
+    },
+    "alipay-demo-01.csv#9": {
+      "label": "消费",
+      "scenario": "C1-a",
+      "note": ""
+    },
+    "alipay-demo-01.csv#10": {
+      "label": "消费",
+      "scenario": "SUB-音乐-4",
+      "note": ""
+    },
+    "alipay-demo-01.csv#11": {
+      "label": "消费",
+      "scenario": "FP-快餐-a2",
+      "note": ""
+    },
+    "alipay-demo-01.csv#12": {
+      "label": "消费",
+      "scenario": "C2-a",
+      "note": ""
+    },
+    "alipay-demo-01.csv#13": {
+      "label": "消费",
+      "scenario": "FP-8801",
+      "note": ""
+    },
+    "alipay-demo-01.csv#14": {
+      "label": "消费",
+      "scenario": "C3-a",
+      "note": ""
+    },
+    "alipay-demo-01.csv#15": {
+      "label": "消费",
+      "scenario": "FP-咖啡-a",
+      "note": ""
+    },
+    "alipay-demo-01.csv#16": {
+      "label": "报销",
+      "scenario": "R30-报销",
+      "note": ""
+    },
+    "alipay-demo-01.csv#17": {
+      "label": "退款",
+      "scenario": "R10-退款2",
+      "note": ""
+    },
+    "alipay-demo-01.csv#18": {
+      "label": "未知",
+      "scenario": "UNK-张三转账",
+      "note": ""
+    },
+    "alipay-demo-01.csv#19": {
+      "label": "消费",
+      "scenario": "SUB-音乐-5",
+      "note": ""
+    },
+    "alipay-demo-01.csv#20": {
+      "label": "消费",
+      "scenario": "FILL-A1",
+      "note": ""
+    },
+    "alipay-demo-02.csv#4": {
+      "label": "消费",
+      "scenario": null,
+      "note": ""
+    },
+    "alipay-demo-02.csv#5": {
+      "label": "消费",
+      "scenario": null,
+      "note": ""
+    },
+    "alipay-demo-02.csv#6": {
+      "label": "本人转账",
+      "scenario": "TR-卡B出",
+      "note": ""
+    },
+    "alipay-demo-02.csv#7": {
+      "label": "本人转账",
+      "scenario": "TR-卡A中性",
+      "note": ""
+    },
+    "alipay-demo-02.csv#8": {
+      "label": "未知",
+      "scenario": "UNK-其他方向",
+      "note": ""
+    },
+    "alipay-demo-02.csv#9": {
+      "label": "消费",
+      "scenario": null,
+      "note": ""
+    },
+    "bank-demo-01.csv#4": {
+      "label": "消费",
+      "scenario": "C2-b",
+      "note": ""
+    },
+    "bank-demo-01.csv#9": {
+      "label": "本人转账",
+      "scenario": "TR-卡B-bank",
+      "note": ""
+    },
+    "bank-demo-01.csv#10": {
+      "label": "消费",
+      "scenario": "C4-b",
+      "note": ""
+    },
+    "bank-demo-02.csv#3": {
+      "label": "消费",
+      "scenario": null,
+      "note": ""
+    },
+    "bank-demo-02.csv#4": {
+      "label": "消费",
+      "scenario": null,
+      "note": ""
+    },
+    "bank-demo-02.csv#5": {
+      "label": "消费",
+      "scenario": null,
+      "note": ""
+    },
+    "bank-demo-02.csv#6": {
+      "label": "消费",
+      "scenario": null,
+      "note": ""
+    },
+    "bank-demo-02.csv#7": {
+      "label": "AA回款",
+      "scenario": "R20-AA2",
+      "note": ""
+    },
+    "bank-demo-02.csv#8": {
+      "label": "消费",
+      "scenario": null,
+      "note": ""
+    },
+    "bank-demo-03.xlsx#2": {
+      "label": "消费",
+      "scenario": "SUB-年付-1",
+      "note": ""
+    },
+    "bank-demo-03.xlsx#3": {
+      "label": "消费",
+      "scenario": "SUB-年付-2",
+      "note": ""
+    },
+    "bank-demo-03.xlsx#4": {
+      "label": "消费",
+      "scenario": "SUB-云盘-1",
+      "note": ""
+    },
+    "bank-demo-03.xlsx#5": {
+      "label": "消费",
+      "scenario": "SUB-云盘-2",
+      "note": ""
+    },
+    "bank-demo-03.xlsx#6": {
+      "label": "消费",
+      "scenario": "SUB-云盘-3",
+      "note": ""
+    },
+    "bank-demo-03.xlsx#7": {
+      "label": "消费",
+      "scenario": null,
+      "note": ""
+    },
+    "bank-demo-03.xlsx#8": {
+      "label": "消费",
+      "scenario": null,
+      "note": ""
+    },
+    "bank-demo-03.xlsx#9": {
+      "label": "消费",
+      "scenario": null,
+      "note": ""
+    },
+    "bank-demo-03.xlsx#10": {
+      "label": "消费",
+      "scenario": "SUB-年付-3",
+      "note": ""
+    }
+  },
+  "expect_dedup": {
+    "clustering_note": "聚类键=（归一对手方,金额,方向）；组内按时间排序链式相邻聚类，闭区间 |Δt| ≤ W（W=manifest.dedup_window_seconds）；跨平台前提：簇内 ≥2 平台才判定重复",
+    "clusters": [
+      {
+        "cluster_id": "C1",
+        "verdict": "duplicate_cross_platform",
+        "members": [
+          "wechat-demo-01.csv#10",
+          "alipay-demo-01.csv#9"
+        ],
+        "representative": "wechat-demo-01.csv#10",
+        "note": "2 平台簇；代表笔按（时间最早 → 平台优先级 → 行号）"
+      },
+      {
+        "cluster_id": "C2",
+        "verdict": "duplicate_cross_platform",
+        "members": [
+          "wechat-demo-01.csv#13",
+          "bank-demo-01.csv#4",
+          "alipay-demo-01.csv#12"
+        ],
+        "representative": "wechat-demo-01.csv#13",
+        "note": "3 平台簇"
+      },
+      {
+        "cluster_id": "C3",
+        "verdict": "duplicate_cross_platform",
+        "members": [
+          "wechat-demo-01.csv#14",
+          "alipay-demo-01.csv#14"
+        ],
+        "representative": "wechat-demo-01.csv#14",
+        "note": "窗口边界：Δt=W=120s 恰好命中（闭区间）"
+      },
+      {
+        "cluster_id": "C4",
+        "verdict": "duplicate_cross_platform",
+        "members": [
+          "wechat-demo-03.xlsx#5",
+          "bank-demo-01.csv#10"
+        ],
+        "representative": "wechat-demo-03.xlsx#5",
+        "note": "XLSX↔CSV 跨平台簇"
+      },
+      {
+        "cluster_id": "S1",
+        "verdict": "candidate_same_platform",
+        "members": [
+          "wechat-demo-01.csv#18",
+          "wechat-demo-01.csv#19"
+        ],
+        "note": "同平台同金额同时刻：不合并，显式标注待人工复核"
+      }
+    ],
+    "must_not_merge": [
+      {
+        "pair": [
+          "wechat-demo-01.csv#15",
+          "alipay-demo-01.csv#15"
+        ],
+        "form": "boundary_beyond_window",
+        "note": "Δt=W+1s=121s：不合并"
+      },
+      {
+        "pair": [
+          "wechat-demo-01.csv#15",
+          "wechat-demo-01.csv#17"
+        ],
+        "form": "fp_same_amount_over_window",
+        "note": "同商户同金额跨天：不合并"
+      },
+      {
+        "pair": [
+          "wechat-demo-01.csv#10",
+          "wechat-demo-01.csv#12"
+        ],
+        "form": "fp_same_amount_over_window",
+        "note": "同商户同金额跨天：不合并"
+      },
+      {
+        "pair": [
+          "alipay-demo-01.csv#11",
+          "alipay-demo-01.csv#12"
+        ],
+        "form": "fp_diff_amount_within_window",
+        "note": "窗内同商户不同金额：不合并"
+      },
+      {
+        "pair": [
+          "alipay-demo-01.csv#13",
+          "alipay-demo-01.csv#14"
+        ],
+        "form": "fp_one_cent_within_window",
+        "note": "窗内同商户同金额差 1 分：不合并"
+      }
+    ]
+  },
+  "expect_subscription": {
+    "subscriptions": [
+      {
+        "subscription_id": "SUB-A",
+        "expect_form": "monthly_plain",
+        "merchant": "示例视频会员",
+        "amounts": [
+          "25.00"
+        ],
+        "period": "monthly",
+        "entries": [
+          "wechat-demo-01.csv#7",
+          "wechat-demo-01.csv#11",
+          "wechat-demo-01.csv#23"
+        ],
+        "price_changes": [],
+        "gaps": [],
+        "note": "月付：间隔 30/30 天（容差 ±2）"
+      },
+      {
+        "subscription_id": "SUB-B",
+        "expect_form": "price_rise",
+        "merchant": "示例音乐会员",
+        "amounts": [
+          "15.00",
+          "18.00"
+        ],
+        "period": "monthly",
+        "entries": [
+          "alipay-demo-01.csv#5",
+          "alipay-demo-01.csv#6",
+          "alipay-demo-01.csv#7",
+          "alipay-demo-01.csv#10",
+          "alipay-demo-01.csv#19"
+        ],
+        "price_changes": [
+          {
+            "entry": "alipay-demo-01.csv#10",
+            "from_amount": "15.00",
+            "to_amount": "18.00"
+          }
+        ],
+        "gaps": [],
+        "note": "涨价序列：仅记录观测到的变动，不做预测"
+      },
+      {
+        "subscription_id": "SUB-C",
+        "expect_form": "quarterly",
+        "merchant": "示例云盘会员",
+        "amounts": [
+          "98.00"
+        ],
+        "period": "quarterly",
+        "entries": [
+          "bank-demo-03.xlsx#4",
+          "bank-demo-03.xlsx#5",
+          "bank-demo-03.xlsx#6"
+        ],
+        "price_changes": [],
+        "gaps": [],
+        "note": "季付：间隔 91/91 天（容差 ±3）"
+      },
+      {
+        "subscription_id": "SUB-D",
+        "expect_form": "yearly",
+        "merchant": "示例视频会员",
+        "amounts": [
+          "258.00"
+        ],
+        "period": "yearly",
+        "entries": [
+          "bank-demo-03.xlsx#2",
+          "bank-demo-03.xlsx#3",
+          "bank-demo-03.xlsx#10"
+        ],
+        "price_changes": [],
+        "gaps": [],
+        "note": "年付：间隔 365/365 天（容差 ±5）"
+      },
+      {
+        "subscription_id": "SUB-E",
+        "expect_form": "gap_interrupted",
+        "merchant": "示例健身月卡",
+        "amounts": [
+          "199.00"
+        ],
+        "period": "monthly",
+        "entries": [
+          "wechat-demo-01.csv#4",
+          "wechat-demo-01.csv#5",
+          "wechat-demo-01.csv#6",
+          "wechat-demo-01.csv#9"
+        ],
+        "price_changes": [],
+        "gaps": [
+          "2026-06"
+        ],
+        "note": "周期中断（漏 2026-06 一期）：规则写死并测试（M4 定稿）"
+      }
+    ],
+    "non_periodic_distractors": [
+      {
+        "expect_form": "non_periodic_distractor",
+        "merchant": "示例打车平台",
+        "amounts": [
+          "25.00",
+          "66.00"
+        ],
+        "entries": [
+          "wechat-demo-01.csv#8",
+          "wechat-demo-01.csv#16",
+          "wechat-demo-01.csv#24"
+        ],
+        "note": "非周期相似金额：不得判为订阅（间隔 43/33 天不落任何周期容差）"
+      }
+    ]
+  }
+}

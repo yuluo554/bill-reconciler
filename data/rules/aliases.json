@@ -1,0 +1,421 @@
+{
+  "schema_version": 1,
+  "kind": "alias-table",
+  "ruleset_version": 1,
+  "normalize_note": "归并动作顺序：去空白 → 全半角统一（本表映射）→ 后缀剥离（白名单）→ 别名表命中；未命中任何规则则原样保留",
+  "suffix_strip": [
+    "有限公司",
+    "有限责任公司",
+    "股份有限公司",
+    "集团有限公司"
+  ],
+  "fullwidth_map": [
+    {
+      "full": "！",
+      "half": "!"
+    },
+    {
+      "full": "＂",
+      "half": "\""
+    },
+    {
+      "full": "＃",
+      "half": "#"
+    },
+    {
+      "full": "＄",
+      "half": "$"
+    },
+    {
+      "full": "％",
+      "half": "%"
+    },
+    {
+      "full": "＆",
+      "half": "&"
+    },
+    {
+      "full": "＇",
+      "half": "'"
+    },
+    {
+      "full": "（",
+      "half": "("
+    },
+    {
+      "full": "）",
+      "half": ")"
+    },
+    {
+      "full": "＊",
+      "half": "*"
+    },
+    {
+      "full": "＋",
+      "half": "+"
+    },
+    {
+      "full": "，",
+      "half": ","
+    },
+    {
+      "full": "－",
+      "half": "-"
+    },
+    {
+      "full": "．",
+      "half": "."
+    },
+    {
+      "full": "／",
+      "half": "/"
+    },
+    {
+      "full": "０",
+      "half": "0"
+    },
+    {
+      "full": "１",
+      "half": "1"
+    },
+    {
+      "full": "２",
+      "half": "2"
+    },
+    {
+      "full": "３",
+      "half": "3"
+    },
+    {
+      "full": "４",
+      "half": "4"
+    },
+    {
+      "full": "５",
+      "half": "5"
+    },
+    {
+      "full": "６",
+      "half": "6"
+    },
+    {
+      "full": "７",
+      "half": "7"
+    },
+    {
+      "full": "８",
+      "half": "8"
+    },
+    {
+      "full": "９",
+      "half": "9"
+    },
+    {
+      "full": "：",
+      "half": ":"
+    },
+    {
+      "full": "；",
+      "half": ";"
+    },
+    {
+      "full": "＜",
+      "half": "<"
+    },
+    {
+      "full": "＝",
+      "half": "="
+    },
+    {
+      "full": "＞",
+      "half": ">"
+    },
+    {
+      "full": "？",
+      "half": "?"
+    },
+    {
+      "full": "＠",
+      "half": "@"
+    },
+    {
+      "full": "Ａ",
+      "half": "A"
+    },
+    {
+      "full": "Ｂ",
+      "half": "B"
+    },
+    {
+      "full": "Ｃ",
+      "half": "C"
+    },
+    {
+      "full": "Ｄ",
+      "half": "D"
+    },
+    {
+      "full": "Ｅ",
+      "half": "E"
+    },
+    {
+      "full": "Ｆ",
+      "half": "F"
+    },
+    {
+      "full": "Ｇ",
+      "half": "G"
+    },
+    {
+      "full": "Ｈ",
+      "half": "H"
+    },
+    {
+      "full": "Ｉ",
+      "half": "I"
+    },
+    {
+      "full": "Ｊ",
+      "half": "J"
+    },
+    {
+      "full": "Ｋ",
+      "half": "K"
+    },
+    {
+      "full": "Ｌ",
+      "half": "L"
+    },
+    {
+      "full": "Ｍ",
+      "half": "M"
+    },
+    {
+      "full": "Ｎ",
+      "half": "N"
+    },
+    {
+      "full": "Ｏ",
+      "half": "O"
+    },
+    {
+      "full": "Ｐ",
+      "half": "P"
+    },
+    {
+      "full": "Ｑ",
+      "half": "Q"
+    },
+    {
+      "full": "Ｒ",
+      "half": "R"
+    },
+    {
+      "full": "Ｓ",
+      "half": "S"
+    },
+    {
+      "full": "Ｔ",
+      "half": "T"
+    },
+    {
+      "full": "Ｕ",
+      "half": "U"
+    },
+    {
+      "full": "Ｖ",
+      "half": "V"
+    },
+    {
+      "full": "Ｗ",
+      "half": "W"
+    },
+    {
+      "full": "Ｘ",
+      "half": "X"
+    },
+    {
+      "full": "Ｙ",
+      "half": "Y"
+    },
+    {
+      "full": "Ｚ",
+      "half": "Z"
+    },
+    {
+      "full": "［",
+      "half": "["
+    },
+    {
+      "full": "＼",
+      "half": "\\"
+    },
+    {
+      "full": "］",
+      "half": "]"
+    },
+    {
+      "full": "＾",
+      "half": "^"
+    },
+    {
+      "full": "＿",
+      "half": "_"
+    },
+    {
+      "full": "｀",
+      "half": "`"
+    },
+    {
+      "full": "ａ",
+      "half": "a"
+    },
+    {
+      "full": "ｂ",
+      "half": "b"
+    },
+    {
+      "full": "ｃ",
+      "half": "c"
+    },
+    {
+      "full": "ｄ",
+      "half": "d"
+    },
+    {
+      "full": "ｅ",
+      "half": "e"
+    },
+    {
+      "full": "ｆ",
+      "half": "f"
+    },
+    {
+      "full": "ｇ",
+      "half": "g"
+    },
+    {
+      "full": "ｈ",
+      "half": "h"
+    },
+    {
+      "full": "ｉ",
+      "half": "i"
+    },
+    {
+      "full": "ｊ",
+      "half": "j"
+    },
+    {
+      "full": "ｋ",
+      "half": "k"
+    },
+    {
+      "full": "ｌ",
+      "half": "l"
+    },
+    {
+      "full": "ｍ",
+      "half": "m"
+    },
+    {
+      "full": "ｎ",
+      "half": "n"
+    },
+    {
+      "full": "ｏ",
+      "half": "o"
+    },
+    {
+      "full": "ｐ",
+      "half": "p"
+    },
+    {
+      "full": "ｑ",
+      "half": "q"
+    },
+    {
+      "full": "ｒ",
+      "half": "r"
+    },
+    {
+      "full": "ｓ",
+      "half": "s"
+    },
+    {
+      "full": "ｔ",
+      "half": "t"
+    },
+    {
+      "full": "ｕ",
+      "half": "u"
+    },
+    {
+      "full": "ｖ",
+      "half": "v"
+    },
+    {
+      "full": "ｗ",
+      "half": "w"
+    },
+    {
+      "full": "ｘ",
+      "half": "x"
+    },
+    {
+      "full": "ｙ",
+      "half": "y"
+    },
+    {
+      "full": "ｚ",
+      "half": "z"
+    },
+    {
+      "full": "｛",
+      "half": "{"
+    },
+    {
+      "full": "｜",
+      "half": "|"
+    },
+    {
+      "full": "｝",
+      "half": "}"
+    },
+    {
+      "full": "～",
+      "half": "~"
+    },
+    {
+      "full": "　",
+      "half": " "
+    }
+  ],
+  "aliases": [
+    {
+      "canonical": "示例便利店甲",
+      "variants": [
+        "示例便利店甲（有限）公司",
+        "示例 便利店甲"
+      ]
+    },
+    {
+      "canonical": "示例快餐乙",
+      "variants": [
+        "示例快餐乙外卖店"
+      ]
+    },
+    {
+      "canonical": "示例超市丙",
+      "variants": [
+        "示例超市丙 旗舰店"
+      ]
+    },
+    {
+      "canonical": "示例咖啡丁",
+      "variants": [
+        "示例咖啡丁（五道口店）"
+      ]
+    }
+  ]
+}

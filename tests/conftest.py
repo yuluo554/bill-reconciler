@@ -38,3 +38,27 @@ def run_cli():
         )
 
     return _run
+
+
+@pytest.fixture()
+def run_tools():
+    """tools/ 生成器与守门脚本的子进程夹具（显式 UTF-8，cwd=仓库根）。"""
+
+    def _run(*args, env=None):
+        override = dict(env or {})
+        full_env = dict(os.environ)
+        full_env["PYTHONDONTWRITEBYTECODE"] = "1"
+        if "PYTHONIOENCODING" not in override:
+            full_env["PYTHONIOENCODING"] = "utf-8"
+        full_env.update(override)
+        return subprocess.run(
+            [sys.executable, "-X", "utf8"] + list(args),
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            cwd=str(REPO_ROOT),
+            env=full_env,
+        )
+
+    return _run

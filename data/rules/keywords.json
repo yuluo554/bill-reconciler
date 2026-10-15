@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "kind": "keyword-rules",
+  "ruleset_version": 1,
+  "match_note": "关键词按子串匹配、区分大小写；作用域 = 交易对方 + 商品说明；规则按 priority 升序评估，方向条件不满足即跳过；全部未命中 → 『未知』（一等结论，不得 fallthrough 为消费）",
+  "rules": [
+    {
+      "id": "R10_refund",
+      "label": "退款",
+      "direction_condition": "income",
+      "keywords": [
+        "退款"
+      ],
+      "priority": 10,
+      "notes": "入账且出现『退款』字样；支出方向出现该词为干扰例，不得命中"
+    },
+    {
+      "id": "R20_aa_collection",
+      "label": "AA回款",
+      "direction_condition": "income",
+      "keywords": [
+        "AA回款",
+        "AA收款"
+      ],
+      "priority": 20,
+      "notes": "入账且出现 AA 回款/AA 收款字样"
+    },
+    {
+      "id": "R30_reimbursement",
+      "label": "报销",
+      "direction_condition": "income",
+      "keywords": [
+        "报销"
+      ],
+      "priority": 30,
+      "notes": "入账且出现『报销』字样"
+    },
+    {
+      "id": "R40_self_transfer",
+      "label": "本人转账",
+      "direction_condition": "any",
+      "keywords": [
+        "示例本人卡A",
+        "示例本人卡B"
+      ],
+      "priority": 40,
+      "notes": "出现本人卡占位名即命中（含『不计收支』方向）；同事/房东转账不命中"
+    },
+    {
+      "id": "R50_consumption_retail",
+      "label": "消费",
+      "direction_condition": "expense",
+      "keywords": [
+        "示例便利店甲",
+        "示例快餐乙",
+        "示例超市丙",
+        "示例咖啡丁"
+      ],
+      "priority": 50,
+      "notes": "白名单零售/餐饮商户，支出方向命中消费"
+    },
+    {
+      "id": "R51_consumption_travel",
+      "label": "消费",
+      "direction_condition": "expense",
+      "keywords": [
+        "示例打车平台"
+      ],
+      "priority": 50,
+      "notes": "出行商户，支出方向命中消费"
+    },
+    {
+      "id": "R52_consumption_topup",
+      "label": "消费",
+      "direction_condition": "expense",
+      "keywords": [
+        "示例话费充值"
+      ],
+      "priority": 50,
+      "notes": "充值商户，支出方向命中消费"
+    }
+  ]
+}
