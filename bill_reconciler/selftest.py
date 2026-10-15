@@ -66,6 +66,25 @@ def _check_samples(data_dir):
     return _STATUS_PASS, "合成样例：%d 个文件" % len(files)
 
 
+def _check_param_literals(data_dir):
+    """零参数字面量门禁（M3）：引擎/CLI 源码零规则包数值词面。"""
+    if data_dir is None:
+        return _STATUS_FAIL, "数据目录不可用，门禁无法运行"
+    from .lint_params import scan_param_literals
+    from .params import load_rules_package
+
+    package = load_rules_package(data_dir)
+    violations = scan_param_literals(package)
+    if violations:
+        detail = "；".join(
+            "%s:%s=%s" % (v["file"], v["line"], v["token"]) for v in violations[:5]
+        )
+        return _STATUS_FAIL, "源码出现规则包数值词面（%d 处）：%s" % (
+            len(violations), detail
+        )
+    return _STATUS_PASS, "引擎/CLI 源码零参数字面量（token 集随规则包生成）"
+
+
 def run_selftest():
     """运行全部检查并打印清单；返回退出码（0 全过 / 1 有 FAIL）。"""
     print("bill-reconciler selftest %s" % __version__)
@@ -77,6 +96,7 @@ def run_selftest():
         ("数据目录", data_status, data_detail),
         ("规则包", *_check_rules(data_dir)),
         ("合成样例", *_check_samples(data_dir)),
+        ("参数字面量门禁", *_check_param_literals(data_dir)),
     ]
 
     counts = {_STATUS_PASS: 0, _STATUS_PENDING: 0, _STATUS_FAIL: 0}

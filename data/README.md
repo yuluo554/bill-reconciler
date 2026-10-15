@@ -79,16 +79,16 @@
 
 全部资产由生成器程序化产出（`tools/` 内自研 splitmix64、固定 seed、无时钟、无 stdlib random），`tools/check_frozen.py` 全量 `--check` 位级守门（重生成与入库件逐字节比对，禁手改）。
 
-- **生成器版本**：`gen_rules.py` v2、`gen_samples.py` v2（均登记进产物头；v2 勘误见 plan/04 §二——samples 修复 3 处形态未落盘、rules 新增列名别名表 column_aliases）；
+- **生成器版本**：`gen_rules.py` v3、`gen_samples.py` v2（均登记进产物头；v2 勘误见 plan/04 §二——samples 修复 3 处形态未落盘、rules 新增列名别名表 column_aliases；**v3 勘误见 plan/05 §M3**——keywords 补登记订阅类商户规则 R53 与 R30"报销款"口径，ruleset_version 2→3，真值期望不变、rules 三件字节变化）；
 - **seed**：`20261015`（gen_samples）；gen_rules 为纯静态构建（无 RNG）；
 - **基准日**：2026-10-15（固定常量入产物，非运行时钟）；
 - **复核方式**：`py tools/check_frozen.py`（全绿 = 与重生成位级一致）；`--ledger` 打印同款 sha256 台账。
 
 | 路径 | 生成器 | sha256 |
 |---|---|---|
-| data/rules/manifest.json | gen_rules.py v2 | `d6a4d86f28ba3b5ce4352dee7eb835601d11aa9ddfbcb0431931e093090770a4` |
-| data/rules/keywords.json | gen_rules.py v2 | `8462baf6717e63f33c4ca59c8937901b759e19066c10c3b2293a3cbce17f0e8a` |
-| data/rules/aliases.json | gen_rules.py v2 | `b49f59bd7867ab63ca0b6aa9d96ff66f9de21ba5799eaa7dba9fdb6c53f2dc30` |
+| data/rules/manifest.json | gen_rules.py v3 | `a41cbf59f83304b6eaf291946147a306ce0d165ee7dfa3c3a333531b846ae916` |
+| data/rules/keywords.json | gen_rules.py v3 | `4c447e57e28b4edc65dbfd418b48196e622aaef9962402958db0cf85fefe70dd` |
+| data/rules/aliases.json | gen_rules.py v3 | `d2a3e6bbb94bc1a8409deb922e9236de1069160632543196ca7ccb16b050c9b5` |
 | data/truth/truth.json | gen_samples.py v2 (seed 20261015) | `35ee581cac0f9f56ac00f398f984c7bdbaffb9abda1999a05f76346cbfcbd28b` |
 | data/samples/wechat-demo-01.csv | gen_samples.py v2 | `cdb10aaacfb2541b4d306de13897fe11cca956845abf80fc8edf6bc66dfb2fd2` |
 | data/samples/wechat-demo-02.csv | gen_samples.py v2 | `9e8ddb6dacb62fec387d69881ebf1368bff99f46cea717b226272739d3a9b862` |

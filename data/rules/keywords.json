@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "kind": "keyword-rules",
-  "ruleset_version": 2,
+  "ruleset_version": 3,
   "match_note": "关键词按子串匹配、区分大小写；作用域 = 交易对方 + 商品说明；规则按 priority 升序评估，方向条件不满足即跳过；全部未命中 → 『未知』（一等结论，不得 fallthrough 为消费）",
   "rules": [
     {
@@ -33,7 +33,7 @@
         "报销"
       ],
       "priority": 30,
-      "notes": "入账且出现『报销』字样"
+      "notes": "入账且出现『报销』字样；『报销款』同样含『报销』子串故命中（支出方向的报销词为干扰例，不得命中）"
     },
     {
       "id": "R40_self_transfer",
@@ -78,6 +78,19 @@
       ],
       "priority": 50,
       "notes": "充值商户，支出方向命中消费"
+    },
+    {
+      "id": "R53_consumption_subscription",
+      "label": "消费",
+      "direction_condition": "expense",
+      "keywords": [
+        "示例健身月卡",
+        "示例视频会员",
+        "示例音乐会员",
+        "示例云盘会员"
+      ],
+      "priority": 50,
+      "notes": "订阅类商户（会员/月卡），支出方向命中消费（v3 勘误补登记）"
     }
   ]
 }

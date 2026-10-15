@@ -44,15 +44,62 @@ _LEAVE_ENCODINGS = (
     "utf16be",
 )
 
-# 占位命令表：(命令名, 帮助语, 计划里程碑)——import 已于 M2 实装
+# 占位命令表：(命令名, 帮助语, 计划里程碑)——import 于 M2、normalize/dedup/
+# classify/run 于 M3 实装；report/bench 计划 M4
 _STUB_COMMANDS = [
-    ("normalize", "商户名归一化（模块②）", "M3"),
-    ("dedup", "跨平台去重（模块③）", "M3"),
-    ("classify", "转账/退款/AA回款语义识别（模块④）", "M3"),
     ("report", "生成单文件 HTML 报告（模块⑤）", "M4"),
-    ("run", "一键串起完整流水线（①→⑤）", "M2–M4"),
     ("bench", "运行内置基准套件", "M4"),
 ]
+
+
+def _load_package():
+    """规则包加载（M3 各命令共用；唯一访问点 params.py）。"""
+    from .datadir import require_data_dir
+    from .params import load_rules_package
+
+    return load_rules_package(require_data_dir())
+
+
+def _read_ledger(path):
+    """读上游 ledger JSON（normalize/dedup/classify 单段入口的输入）。"""
+    from .errors import InputError
+
+    src = Path(path)
+    if not src.is_file():
+        raise InputError("上游 ledger 文件不存在：%s" % src)
+    try:
+        return json.loads(src.read_text(encoding="utf-8"))
+    except ValueError as exc:
+        raise InputError("上游 ledger 文件不可解析 %s：%s" % (src, exc))
+
+
+def _write_ledger(path, ledger):
+    out_path = Path(path)
+    if out_path.parent and not out_path.parent.exists():
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(
+        json.dumps(ledger, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
+
+
+def _write_and_report(out_path, ledger, summary):
+    """落盘 + 摘要（stdout）+ 行级/文件级问题清单（stderr，全量）→ 退出码。"""
+    _write_ledger(out_path, ledger)
+    print(summary)
+    import sys
+
+    for issue in ledger.get("issues", []):
+        where = issue.get("row_id") or "-"
+        print("行级问题 [%s] %s：%s" % (issue["kind"], where, issue["detail"]),
+              file=sys.stderr)
+    for fi in ledger.get("file_issues", []):
+        print("文件级失败 [%s] %s：%s" % (fi["code"], fi["file"], fi["detail"]),
+              file=sys.stderr)
+    if ledger.get("file_issues"):
+        return EXIT_USAGE
+    if ledger.get("issues"):
+        return EXIT_ISSUES
+    return EXIT_OK
 
 
 def _ensure_utf8_stdio():
@@ -150,6 +197,117 @@ def _cmd_import(args):
     return EXIT_OK
 
 
+def _cmd_normalize(args):
+    """normalize 子命令：商户名归一化（模块②，M3 实装）。
+
+    输入上游 ledger（import 产物）或账单文件（--from-files 一步导入+归一）；
+    退出码与 import 同语义。
+    """
+    from .normalize import normalize_ledger
+
+    package = _load_package()
+    if args.from_files:
+        from .ingest.importer import import_files
+
+        params = package.params
+        ledger = import_files(
+            args.from_files,
+            column_aliases=package.aliases["column_aliases"],
+            header_k=params.get("header_locate_k"),
+            max_scan_lines=params.get("header_locate_max_scan_lines"),
+        )
+    else:
+        ledger = _read_ledger(args.ledger)
+    ledger = normalize_ledger(ledger, package.aliases)
+    changed = sum(1 for e in ledger["normalize"]["entries"] if e["changed"])
+    summary = "归一化：唯一名称 %d 个（发生归并 %d 个，未命中原样保留）" % (
+        len(ledger["normalize"]["entries"]), changed
+    )
+    return _write_and_report(args.out, ledger, summary)
+
+
+def _cmd_dedup(args):
+    """dedup 子命令：跨平台去重（模块③，M3 实装）。"""
+    from .dedup import dedup_ledger
+
+    package = _load_package()
+    ledger = _read_ledger(args.ledger)
+    window = args.window_seconds
+    if window is not None and window < 0:
+        from .errors import UsageError
+
+        raise UsageError("--window-seconds 不能为负：%r" % window)
+    effective = (package.params.get("dedup_window_seconds")
+                 if window is None else window)
+    ledger = dedup_ledger(
+        ledger, window_seconds=effective,
+        platform_priority=package.params.get("platform_priority"),
+    )
+    clusters = ledger["dedup"]["clusters"]
+    cross = sum(1 for c in clusters if c["verdict"] == "duplicate_cross_platform")
+    same = sum(1 for c in clusters if c["verdict"] == "candidate_same_platform")
+    excluded = len(ledger["dedup"]["net_summary"]["excluded_duplicate_ids"])
+    summary = (
+        "去重：候选簇 %d 个（跨平台重复 %d / 同平台候选 %d）；"
+        "排除出净额 %d 条（窗口 %s 秒）"
+        % (len(clusters), cross, same, excluded, effective)
+    )
+    return _write_and_report(args.out, ledger, summary)
+
+
+def _cmd_classify(args):
+    """classify 子命令：语义识别（模块④，M3 实装）。"""
+    from .classify import classify_ledger
+
+    package = _load_package()
+    ledger = _read_ledger(args.ledger)
+    ledger = classify_ledger(ledger, package.keywords)
+    dist = ledger["classify"]["distribution"]
+    unknown = len(ledger["classify"]["unknown_rows"])
+    summary = "语义识别：%s；未知 %d 行（一等结论，不混入消费）" % (
+        "；".join("%s=%d" % (k, v) for k, v in sorted(dist.items())) or "无记录",
+        unknown,
+    )
+    return _write_and_report(args.out, ledger, summary)
+
+
+def _cmd_run(args):
+    """run 子命令：import→normalize→dedup→classify 一条命令（M3 接前三段）。
+
+    report/subscription 接入计划于 M4（plan/03 §六"M2 起逐步接入"口径）。
+    """
+    from .pipeline import run_pipeline
+
+    ledger, _exit_kind = run_pipeline(
+        args.files,
+        platform=args.platform,
+        window_seconds=args.window_seconds,
+        out_path=args.out,
+    )
+    return _finish_run(ledger, args.out)
+
+
+def _finish_run(ledger, out_path):
+    import sys
+
+    _write_ledger(out_path, ledger)
+    from .pipeline import summarize
+
+    print(summarize(ledger))
+    for issue in ledger.get("issues", []):
+        where = issue.get("row_id") or "-"
+        print("行级问题 [%s] %s：%s" % (issue["kind"], where, issue["detail"]),
+              file=sys.stderr)
+    for fi in ledger.get("file_issues", []):
+        print("文件级失败 [%s] %s：%s" % (fi["code"], fi["file"], fi["detail"]),
+              file=sys.stderr)
+    if ledger["file_issues"]:
+        return EXIT_USAGE
+    if ledger["issues"]:
+        return EXIT_ISSUES
+    return EXIT_OK
+
+
 def build_parser():
     parser = argparse.ArgumentParser(
         prog=PROG,
@@ -172,6 +330,34 @@ def build_parser():
         help="显式指定平台（wechat/alipay/bank）；缺省按文件名前缀识别",
     )
     sp.set_defaults(func=_cmd_import)
+
+    sp = sub.add_parser("normalize", help="商户名归一化（模块②，M3 实装）")
+    sp.add_argument("--ledger", default=None, help="上游 ledger.json（与 --from-files 二选一）")
+    sp.add_argument("--from-files", nargs="*", default=None,
+                    help="直接给账单文件（先导入再归一）")
+    sp.add_argument("--out", default="ledger-normalized.json", help="输出 JSON 路径")
+    sp.set_defaults(func=_cmd_normalize)
+
+    sp = sub.add_parser("dedup", help="跨平台去重（模块③，M3 实装）")
+    sp.add_argument("--ledger", default="ledger-normalized.json", help="上游 ledger JSON")
+    sp.add_argument("--window-seconds", type=int, default=None,
+                    help="时间窗口秒数（覆盖规则包默认值；闭区间 |Δt| ≤ W）")
+    sp.add_argument("--out", default="ledger-dedup.json", help="输出 JSON 路径")
+    sp.set_defaults(func=_cmd_dedup)
+
+    sp = sub.add_parser("classify", help="转账/退款/AA回款语义识别（模块④，M3 实装）")
+    sp.add_argument("--ledger", default="ledger-dedup.json", help="上游 ledger JSON")
+    sp.add_argument("--out", default="ledger-classified.json", help="输出 JSON 路径")
+    sp.set_defaults(func=_cmd_classify)
+
+    sp = sub.add_parser("run", help="一键流水线：导入→归一化→去重→语义（①→④，M3 实装）")
+    sp.add_argument("files", nargs="+", help="账单文件（微信/支付宝/银行导出）")
+    sp.add_argument("--platform", default=None,
+                    help="显式指定平台（wechat/alipay/bank）；缺省按文件名前缀识别")
+    sp.add_argument("--window-seconds", type=int, default=None,
+                    help="去重时间窗口秒数（覆盖规则包默认值）")
+    sp.add_argument("--out", default="ledger-full.json", help="输出 JSON 路径")
+    sp.set_defaults(func=_cmd_run)
 
     for name, help_text, milestone in _STUB_COMMANDS:
         sp = sub.add_parser(name, help="%s（计划 %s）" % (help_text, milestone))

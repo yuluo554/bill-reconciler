@@ -21,11 +21,13 @@ def test_selftest_reports_pending_m1_assets(run_cli):
     # 期望变更（M1，plan/05 里程碑 M1 DoD）：M0 骨架期数据资产尚未生成，本测试曾断言
     # "[PENDING]" 与 "计划 M1 生成"；M1 已生成规则包 + 合成样例并配 --check 位级守门，
     # 按既定口径（HANDOFF-M1 §三 K2）翻转期望：数据资产必须 [PASS]、无 PENDING 残留。
+    # 期望变更（M3）：新增"参数字面量门禁"检查项（plan/05 里程碑 M3 DoD）。
     result = run_cli("selftest")
     assert result.returncode == 0
     assert "[PENDING]" not in result.stdout
     assert "[PASS] 规则包" in result.stdout
     assert "[PASS] 合成样例" in result.stdout
+    assert "[PASS] 参数字面量门禁" in result.stdout
 
 
 def test_selftest_flags_invalid_data_dir(run_cli, tmp_path):

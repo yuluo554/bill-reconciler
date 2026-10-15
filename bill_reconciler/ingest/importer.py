@@ -192,17 +192,26 @@ def import_one_file(path, platform, column_aliases, header_k, max_scan_lines):
     return source_meta, records, issues, column_issues
 
 
-def import_files(paths, platform=None, column_aliases=None, header_k=2, max_scan_lines=20):
+def import_files(paths, platform=None, column_aliases=None, header_k=None, max_scan_lines=None):
     """导入多文件 → ledger dict（IR）。
 
     退出码语义由调用方据 ``file_issues/issues`` 判定：
     任一 file_issue → 2；仅行级 issues → 1；全干净 → 0。
+    ``header_k/max_scan_lines`` 为 None 时取规则包默认（调用方解析传入；
+    本模块不自行读数据目录，保持纯解析层）。
     """
     if platform is not None and platform not in KNOWN_PLATFORMS:
         raise UnknownPlatformError(
             "未知平台 %r（可用：%s）" % (platform, "/".join(KNOWN_PLATFORMS))
         )
     column_aliases = column_aliases or []
+    if header_k is None or max_scan_lines is None:
+        from ..params import load_rules_package
+        from ..datadir import require_data_dir
+
+        package = load_rules_package(require_data_dir())
+        header_k = package.params.get("header_locate_k")
+        max_scan_lines = package.params.get("header_locate_max_scan_lines")
 
     meta_sources = []
     all_records = []

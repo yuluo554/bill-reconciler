@@ -27,8 +27,11 @@ from _frozen_common import (  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 # v2（2026-10-15，M2）：新增列名别名表 column_aliases（ingest 列映射同源数据）
-GEN_VERSION = 2
-RULESET_VERSION = 2
+# v3（2026-10-15，M3 勘误）：R52 漏登记订阅类商户（真值 18 个 SUB-* 消费行无规则
+#   可命中——若引擎补词表会与"词表是冻结数据"冲突，K8 按数据侧勘误处理）；
+#   新增 R60 报销词在支出方向的干扰例规则占位说明（见 R30 notes）
+GEN_VERSION = 3
+RULESET_VERSION = 3
 SOURCE_NOTE = "经验默认（非官方）：全部默认值为经验示例值，用户可经 CLI flag 覆盖"
 
 _PERIOD_TOLERANCE_DAYS = 2
@@ -191,7 +194,7 @@ _KEYWORD_RULES = [
         "direction_condition": "income",
         "keywords": ["报销"],
         "priority": 30,
-        "notes": "入账且出现『报销』字样",
+        "notes": "入账且出现『报销』字样；『报销款』同样含『报销』子串故命中（支出方向的报销词为干扰例，不得命中）",
     },
     {
         "id": "R40_self_transfer",
@@ -224,6 +227,14 @@ _KEYWORD_RULES = [
         "keywords": ["示例话费充值"],
         "priority": 50,
         "notes": "充值商户，支出方向命中消费",
+    },
+    {
+        "id": "R53_consumption_subscription",
+        "label": "消费",
+        "direction_condition": "expense",
+        "keywords": ["示例健身月卡", "示例视频会员", "示例音乐会员", "示例云盘会员"],
+        "priority": 50,
+        "notes": "订阅类商户（会员/月卡），支出方向命中消费（v3 勘误补登记）",
     },
 ]
 

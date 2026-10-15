@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "kind": "alias-table",
-  "ruleset_version": 2,
+  "ruleset_version": 3,
   "normalize_note": "归并动作顺序：去空白 → 全半角统一（本表映射）→ 后缀剥离（白名单）→ 别名表命中；未命中任何规则则原样保留",
   "suffix_strip": [
     "有限公司",
