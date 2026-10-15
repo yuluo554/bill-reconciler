@@ -32,7 +32,11 @@ from _frozen_common import (  # noqa: E402
 )
 
 ROOT = Path(__file__).resolve().parents[1]
-GEN_VERSION = 1
+# v2（2026-10-15，M2 勘误）：修复 3 处形态注入未落盘——bank 渲染器忽略
+# amount_cell（amount_not_numeric 形态丢字）与 column_count_mismatch 行的
+# EXTRA 字段注入未生效（wechat/bank 各一行）。形态语义与真值期望不变，
+# 仅磁盘字节变化；按 K8 版本号++ + 整目录重生成 + 台账回写。
+GEN_VERSION = 2
 SEED = 20261015
 BASIS_DATE = "2026-10-15"
 
@@ -296,9 +300,10 @@ class _Builder:
         if spec["platform"] == "bank":
             date, hms = t.split(" ")
             expense = income = ""
-            if row["cents"] is not None:
-                cell = row["amount_cell"]
-                text = cell if cell is not None else _amt(row["cents"])
+            if row["cents"] is not None or row["amount_cell"] is not None:
+                # amount_cell 优先：异常形态（如非数值 "abc"）必须原样落盘，
+                # 否则"非数值金额"形态在磁盘文件中不可复现（与真值脱钩）
+                text = row["amount_cell"] if row["amount_cell"] is not None else _amt(row["cents"])
                 if row["dir_text"] == "支出":
                     expense = text
                 elif row["dir_text"] == "收入":
@@ -430,13 +435,15 @@ def _build_all():
         b.tx("2026-09-25 11:00:00", 103450, "示例话费充值", "充值", "支出", label="消费", amount_cell="\uffe5" + _amt_thousands(103450)),
     ]
     for row in rows2:
+        if row["code"] == "column_count_mismatch":
+            # 该行渲染时追加 1 个多余字段（列数不匹配 → 行级拒绝）；
+            # 必须在 add_row 前设置——add_row 会复制 row dict（M2 勘误）
+            row["_extra_fields"] = 1
         lineno = b.add_row(f, row)
         b.cov("import", "row_amount_missing", "wechat-demo-02.csv") if row["code"] == "amount_missing" else None
         b.cov("import", "row_time_unparseable", "wechat-demo-02.csv") if row["code"] == "time_unparseable" else None
         if row["code"] == "column_count_mismatch":
             b.cov("import", "row_column_count_mismatch", "wechat-demo-02.csv")
-            # 该行渲染时追加 1 个多余字段（列数不匹配 → 行级拒绝）
-            row["_extra_fields"] = 1
     _ = lineno
 
     # =====================================================================
@@ -604,9 +611,13 @@ def _build_all():
         b.tx("2026-08-13 14:00:00", None, "示例快餐乙", "消费", "支出", status="invalid", code="amount_missing"),
         b.tx("2026-08-14 25:99:99", 1000, "示例超市丙", "消费", "支出", status="invalid", code="time_unparseable"),
         b.tx("2026-08-15 09:00:00", 2200, "示例咖啡丁", "消费", "支出", status="invalid", code="column_count_mismatch"),
+        # 该行渲染时追加 1 个多余字段（列数不匹配 → 行级拒绝）
         b.tx("2026-08-18 21:00:00", 300000, "示例本人卡B", "转入", "收入", key="TR-卡B-bank", label="本人转账"),
         b.tx("2026-09-01 11:01:00", 15670, "示例超市丙", "消费", "支出", key="C4-b", label="消费"),
     ]
+    for row in rows8:
+        if row["code"] == "column_count_mismatch":
+            row["_extra_fields"] = 1
     for row in rows8:
         lineno = b.add_row(f, row)
         if row["key"]:

@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "kind": "rules-manifest",
-  "ruleset_version": 1,
+  "ruleset_version": 2,
   "generator": "tools/gen_rules.py",
-  "generator_version": 1,
+  "generator_version": 2,
   "source_note": "经验默认（非官方）：全部默认值为经验示例值，用户可经 CLI flag 覆盖",
   "params": [
     {

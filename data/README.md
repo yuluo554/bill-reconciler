@@ -75,33 +75,33 @@
 - **合成样例用假商户白名单**（见 §三）；**禁止真实账单/真实商户入库**。
 - **不触碰平台加密数据库、不做密钥提取/内存 dump**——这是本题与已删库方向（PyWxDump / chatlog）的本质区别，也是合规底线。
 
-## 六、资产台账（M1 回填，2026-10-15）
+## 六、资产台账（M1 回填；M2 勘误重生成，2026-10-15）
 
 全部资产由生成器程序化产出（`tools/` 内自研 splitmix64、固定 seed、无时钟、无 stdlib random），`tools/check_frozen.py` 全量 `--check` 位级守门（重生成与入库件逐字节比对，禁手改）。
 
-- **生成器版本**：`gen_rules.py` v1、`gen_samples.py` v1（均登记进产物头）；
+- **生成器版本**：`gen_rules.py` v2、`gen_samples.py` v2（均登记进产物头；v2 勘误见 plan/04 §二——samples 修复 3 处形态未落盘、rules 新增列名别名表 column_aliases）；
 - **seed**：`20261015`（gen_samples）；gen_rules 为纯静态构建（无 RNG）；
 - **基准日**：2026-10-15（固定常量入产物，非运行时钟）；
 - **复核方式**：`py tools/check_frozen.py`（全绿 = 与重生成位级一致）；`--ledger` 打印同款 sha256 台账。
 
 | 路径 | 生成器 | sha256 |
 |---|---|---|
-| data/rules/manifest.json | gen_rules.py v1 | `1e1fa3cf3eff98e45b56eb73ddf756677e4dccc96199b1c973116ab53dc764e2` |
-| data/rules/keywords.json | gen_rules.py v1 | `25e27588cb3f8fd0d8d3d15b92518a770cb2fc250162cfffdc5fa10b05c93524` |
-| data/rules/aliases.json | gen_rules.py v1 | `45161869c3e9265e449e0b046ab6db1cfcd980668253be6a4d8a8df60afaf83f` |
-| data/truth/truth.json | gen_samples.py v1 (seed 20261015) | `68a4c7c58489a59b59a9169eee34fd44c5c602a74557bcd31b0839b890cb9e3a` |
-| data/samples/wechat-demo-01.csv | gen_samples.py v1 | `cdb10aaacfb2541b4d306de13897fe11cca956845abf80fc8edf6bc66dfb2fd2` |
-| data/samples/wechat-demo-02.csv | gen_samples.py v1 | `d3c2d565a74b9fcc61d030c340fb2d5b9db8aae28335c45a8bb8f49fe4fd27e9` |
-| data/samples/wechat-demo-03.xlsx | gen_samples.py v1 | `7603ffd8679e03cba400d4d361cb7c8a865da286b5550ca6f53e7c595b257e80` |
-| data/samples/wechat-demo-bad-encoding.csv | gen_samples.py v1 | `81549fe047117ec6ae351359503f78205218512169853259a2d5ca4725254bd8` |
-| data/samples/alipay-demo-01.csv | gen_samples.py v1 | `ebbeadef7d24808266b889dc84cdd43e15fe3c32ffa1a1874dbe00d4c614009d` |
-| data/samples/alipay-demo-02.csv | gen_samples.py v1 | `00373de3e149a6b86c1dce05a604a24a2078d8088d5cb53d88e0ca5901b69b73` |
-| data/samples/alipay-demo-empty.csv | gen_samples.py v1 | `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` |
-| data/samples/alipay-demo-header-only.csv | gen_samples.py v1 | `686ad999e3ad0cefbe1bbf4706a9ef578c5a0bc82aae915d9d99d48f881f5f44` |
-| data/samples/bank-demo-01.csv | gen_samples.py v1 | `16ff42b63dacc07c846d6bd754a3f3dc28d2f67bb3f38630345cea447d2f732f` |
-| data/samples/bank-demo-02.csv | gen_samples.py v1 | `c5a01a88af2ce817fd8d9670bfdfce683549de87d693b44643a68f423886f5c7` |
-| data/samples/bank-demo-03.xlsx | gen_samples.py v1 | `dd1dfdc03290d84281c43e8ccba722c27fffa554f026fa4c700681671ca299c3` |
-| data/samples/bank-demo-missing-col.csv | gen_samples.py v1 | `f1596c9d1e8ce8935f5b82d5e4c8f53e0c127fc3fb4d5badca71b57e807d95e0` |
+| data/rules/manifest.json | gen_rules.py v2 | `d6a4d86f28ba3b5ce4352dee7eb835601d11aa9ddfbcb0431931e093090770a4` |
+| data/rules/keywords.json | gen_rules.py v2 | `8462baf6717e63f33c4ca59c8937901b759e19066c10c3b2293a3cbce17f0e8a` |
+| data/rules/aliases.json | gen_rules.py v2 | `b49f59bd7867ab63ca0b6aa9d96ff66f9de21ba5799eaa7dba9fdb6c53f2dc30` |
+| data/truth/truth.json | gen_samples.py v2 (seed 20261015) | `35ee581cac0f9f56ac00f398f984c7bdbaffb9abda1999a05f76346cbfcbd28b` |
+| data/samples/wechat-demo-01.csv | gen_samples.py v2 | `cdb10aaacfb2541b4d306de13897fe11cca956845abf80fc8edf6bc66dfb2fd2` |
+| data/samples/wechat-demo-02.csv | gen_samples.py v2 | `9e8ddb6dacb62fec387d69881ebf1368bff99f46cea717b226272739d3a9b862` |
+| data/samples/wechat-demo-03.xlsx | gen_samples.py v2 | `7603ffd8679e03cba400d4d361cb7c8a865da286b5550ca6f53e7c595b257e80` |
+| data/samples/wechat-demo-bad-encoding.csv | gen_samples.py v2 | `81549fe047117ec6ae351359503f78205218512169853259a2d5ca4725254bd8` |
+| data/samples/alipay-demo-01.csv | gen_samples.py v2 | `ebbeadef7d24808266b889dc84cdd43e15fe3c32ffa1a1874dbe00d4c614009d` |
+| data/samples/alipay-demo-02.csv | gen_samples.py v2 | `00373de3e149a6b86c1dce05a604a24a2078d8088d5cb53d88e0ca5901b69b73` |
+| data/samples/alipay-demo-empty.csv | gen_samples.py v2 | `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` |
+| data/samples/alipay-demo-header-only.csv | gen_samples.py v2 | `686ad999e3ad0cefbe1bbf4706a9ef578c5a0bc82aae915d9d99d48f881f5f44` |
+| data/samples/bank-demo-01.csv | gen_samples.py v2 | `7a0ba26360f503b709406aaaab1e0810efb086fa7db4deaf783c3bbca0929dd8` |
+| data/samples/bank-demo-02.csv | gen_samples.py v2 | `c5a01a88af2ce817fd8d9670bfdfce683549de87d693b44643a68f423886f5c7` |
+| data/samples/bank-demo-03.xlsx | gen_samples.py v2 | `dd1dfdc03290d84281c43e8ccba722c27fffa554f026fa4c700681671ca299c3` |
+| data/samples/bank-demo-missing-col.csv | gen_samples.py v2 | `f1596c9d1e8ce8935f5b82d5e4c8f53e0c127fc3fb4d5badca71b57e807d95e0` |
 
 **形态覆盖（plan/04 §三，双登记进 `truth.json` 的 coverage 段）**：导入 27 形态 / 语义 8 形态（含"未知"与全部干扰例）/ 去重 8 形态（含窗口边界与 4 类防误报反例）/ 订阅 6 形态（含涨价、周期中断、非周期干扰）——全部注入、`sampled == total`，分子=分母由测试锁定（`tests/test_frozen_assets.py`）。
 

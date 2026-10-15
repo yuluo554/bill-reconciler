@@ -26,8 +26,9 @@ from _frozen_common import (  # noqa: E402
 )
 
 ROOT = Path(__file__).resolve().parents[1]
-GEN_VERSION = 1
-RULESET_VERSION = 1
+# v2（2026-10-15，M2）：新增列名别名表 column_aliases（ingest 列映射同源数据）
+GEN_VERSION = 2
+RULESET_VERSION = 2
 SOURCE_NOTE = "经验默认（非官方）：全部默认值为经验示例值，用户可经 CLI flag 覆盖"
 
 _PERIOD_TOLERANCE_DAYS = 2
@@ -245,6 +246,41 @@ _ALIAS_ENTRIES = [
     },
 ]
 
+# 列名别名表（M2 ingest 用；与"表头定位预期列名集"同源规则包，plan/03 §1.3）
+# canonical 用规范字段名（ingest.locate.F_* 的中文拼法）；platforms 为空 = 全平台生效
+_COLUMN_ALIAS_ENTRIES = [
+    {
+        "canonical": "对手方",
+        "variants": ["交易对象"],
+        "platforms": ["alipay", "wechat", "bank"],
+        "notes": "同义列名变体（col_synonym_variant 形态）",
+    },
+    {
+        "canonical": "金额",
+        "variants": ["金额(元)", "金额（元）", "金额"],
+        "platforms": ["alipay", "wechat", "bank"],
+        "notes": "金额列写法变体（半角/全角括号）",
+    },
+    {
+        "canonical": "交易时间",
+        "variants": ["交易创建时间"],
+        "platforms": ["alipay"],
+        "notes": "支付宝创建时间列即交易时间",
+    },
+    {
+        "canonical": "商品说明",
+        "variants": ["商品"],
+        "platforms": ["alipay", "wechat"],
+        "notes": "商品说明列写法变体",
+    },
+    {
+        "canonical": "收支类型",
+        "variants": ["收/支"],
+        "platforms": ["alipay", "wechat"],
+        "notes": "收支类型列写法变体",
+    },
+]
+
 
 def _build_fullwidth_map():
     """ASCII 全角 → 半角映射表（程序化生成，固定顺序）。"""
@@ -294,6 +330,7 @@ def build_outputs():
         "suffix_strip": ["有限公司", "有限责任公司", "股份有限公司", "集团有限公司"],
         "fullwidth_map": _build_fullwidth_map(),
         "aliases": _ALIAS_ENTRIES,
+        "column_aliases": _COLUMN_ALIAS_ENTRIES,
     }
     return {
         "data/rules/manifest.json": dumps_json_bytes(manifest),

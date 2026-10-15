@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "kind": "keyword-rules",
-  "ruleset_version": 1,
+  "ruleset_version": 2,
   "match_note": "关键词按子串匹配、区分大小写；作用域 = 交易对方 + 商品说明；规则按 priority 升序评估，方向条件不满足即跳过；全部未命中 → 『未知』（一等结论，不得 fallthrough 为消费）",
   "rules": [
     {

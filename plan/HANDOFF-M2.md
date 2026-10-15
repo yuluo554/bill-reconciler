@@ -36,7 +36,7 @@
 - **K2 selftest 三态**：M1 起数据资产 PASS（`tests/test_selftest.py` 已翻转并注明）；新增资产检查项时保持"PENDING 不冒充通过"纪律。
 - **K3 数据目录解析**：环境变量（无效不回落）→ CWD 向上；无"包位置"支。注意：进程内 selftest 测试依赖 CWD=仓库根（子进程夹具已固定），不要在测试里 chdir 后直调 `main()`。
 - **K4 编码守卫**：入口 `cli.main` 与每个 `tools/` 脚本先 `_ensure_utf8_stdio()`；新模块沿用。
-- **K5 冻结产物 `-text`**：`data/{samples,truth,rules}/**` 与 `*.xlsx` 禁动；sha256 台账在 `data/README.md §六`（truth.json = `68a4c7c5…`），`check_frozen.py --ledger` 可复核。
+- **K5 冻结产物 `-text`**：`data/{samples,truth,rules}/**` 与 `*.xlsx` 禁动；sha256 台账在 `data/README.md §六`（truth.json = `35ee581c…`，M2 勘误 v2 重生成后的现值），`check_frozen.py --ledger` 可复核。
 - **K6 元数据测试双态**：未安装通道 skip / 安装通道实跑，是同一套件合法两态。
 - **K7 决策记录唯一台账 = plan/00 §二**；P1–P5 拍板项仍待用户结案。
 - **K8（M1 新增）生成器确定性**：splitmix64（seed 20261015）、禁 stdlib random / set 迭代序 / 时钟（静态扫描测试锁）；XLSX writer 固定元数据；改生成逻辑 = 版本号++ + 整目录重生成 + `--check` 全绿一并提交。

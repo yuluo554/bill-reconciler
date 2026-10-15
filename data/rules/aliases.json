@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "kind": "alias-table",
-  "ruleset_version": 1,
+  "ruleset_version": 2,
   "normalize_note": "归并动作顺序：去空白 → 全半角统一（本表映射）→ 后缀剥离（白名单）→ 别名表命中；未命中任何规则则原样保留",
   "suffix_strip": [
     "有限公司",
@@ -416,6 +416,66 @@
       "variants": [
         "示例咖啡丁（五道口店）"
       ]
+    }
+  ],
+  "column_aliases": [
+    {
+      "canonical": "对手方",
+      "variants": [
+        "交易对象"
+      ],
+      "platforms": [
+        "alipay",
+        "wechat",
+        "bank"
+      ],
+      "notes": "同义列名变体（col_synonym_variant 形态）"
+    },
+    {
+      "canonical": "金额",
+      "variants": [
+        "金额(元)",
+        "金额（元）",
+        "金额"
+      ],
+      "platforms": [
+        "alipay",
+        "wechat",
+        "bank"
+      ],
+      "notes": "金额列写法变体（半角/全角括号）"
+    },
+    {
+      "canonical": "交易时间",
+      "variants": [
+        "交易创建时间"
+      ],
+      "platforms": [
+        "alipay"
+      ],
+      "notes": "支付宝创建时间列即交易时间"
+    },
+    {
+      "canonical": "商品说明",
+      "variants": [
+        "商品"
+      ],
+      "platforms": [
+        "alipay",
+        "wechat"
+      ],
+      "notes": "商品说明列写法变体"
+    },
+    {
+      "canonical": "收支类型",
+      "variants": [
+        "收/支"
+      ],
+      "platforms": [
+        "alipay",
+        "wechat"
+      ],
+      "notes": "收支类型列写法变体"
     }
   ]
 }
