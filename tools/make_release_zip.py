@@ -7,6 +7,13 @@
   固定外部属性（0644 可读），无目录条目（按文件条目隐含父目录）；
 - 两次打包逐字节一致由 tests 外的 M6 验证流程比对 sha256 验证。
 
+**包外件（自指文件，必须排除）**：``plan/RELEASE-M6.md`` 是本 zip 的**发布留档
+台账**，其 §四/§六 记录**本 zip 自身的 sha256**。若把该文件打进 zip，则"文件内容
+依赖 zip 摘要、zip 摘要又依赖文件内容"构成自指，任何真值都无法自洽（实测：改动
+该文件 → 打包 sha256 必变）。故打包器**恒定排除**该文件（detached checksum 惯例：
+校验和是包外件，不随包内容变化）。被排除件仍在 git 树内（tag/仓库可完整复核），
+发布物可复核性不受影响。
+
 用法：py -X utf8 tools/make_release_zip.py <输出.zip>
 """
 from __future__ import annotations
@@ -19,6 +26,9 @@ from pathlib import Path
 FIXED_DATE_TIME = (2026, 10, 15, 0, 0, 0)
 FIXED_EXTERNAL_ATTR = 0o100644 << 16  # 常规文件 rw-r--r--
 
+# 包外件（自指文件）：见模块 docstring。恒定排除，保证打包确定性。
+_EXCLUDED_NAMES = ("plan/RELEASE-M6.md",)
+
 
 def main() -> int:
     out = Path(sys.argv[1])
@@ -26,7 +36,7 @@ def main() -> int:
     names = sorted(
         line.strip()
         for line in subprocess_lsfiles(root)
-        if line.strip()
+        if line.strip() and line.strip() not in _EXCLUDED_NAMES
     )
     if not names:
         print("FAIL: git ls-files 为空，不在 git 仓库内？", file=sys.stderr)
@@ -39,7 +49,7 @@ def main() -> int:
             info.external_attr = FIXED_EXTERNAL_ATTR
             info.compress_type = zipfile.ZIP_STORED
             zf.writestr(info, data)
-    print(f"OK: {out} 条目数={len(names)}")
+    print(f"OK: {out} 条目数={len(names)}（包外件 {len(_EXCLUDED_NAMES)}）")
     return 0
 
 
