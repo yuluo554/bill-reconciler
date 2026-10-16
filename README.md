@@ -4,7 +4,7 @@
 
 > 纯本地 Python CLI（≥ 3.8，**零第三方运行时依赖**）+ 单文件 HTML 报告 · 零上传 · 零账号 · 零遥测 · **不使用 LLM**，结论 100% 由确定性规则产生
 
-**当前状态**：**v0.1.0 已发布**（2026-10-15，M0–M6 六个里程碑全部完成）。CLI 八个子命令全部实装（`import` / `normalize` / `dedup` / `classify` / `report` / `run` / `bench` / `selftest`）；`run --report` 一条命令出**全链产物**（净流水 + 语义 + 订阅 + 单文件 HTML 报告 + 机读 JSON）。内置基准 B1–B4 全绿（指标见下表）；干净环境按本 README 逐条验证通过（记录见 [plan/verify/README.md](plan/verify/README.md)）；CI 四矩阵（py3.8/3.12 × ubuntu/windows）全绿。开发进程与交付口径见 [plan/05-里程碑.md](plan/05-里程碑.md)。
+**当前状态**：**v0.1.0 已发布**（2026-10-15，M0–M6 六个里程碑全部完成；2026-10-16 发布后审计修复：tag 重打至最终提交、Release 附件重打并核验 digest、plan 未回填项补齐）。CLI 八个子命令全部实装（`import` / `normalize` / `dedup` / `classify` / `report` / `run` / `bench` / `selftest`）；`run --report` 一条命令出**全链产物**（净流水 + 语义 + 订阅 + 单文件 HTML 报告 + 机读 JSON）。内置基准 B1–B4 全绿（指标见下表）；干净环境按本 README 逐条验证通过（记录见 [plan/verify/README.md](plan/verify/README.md)）；CI 四矩阵（py3.8/3.12 × ubuntu/windows）全绿。开发进程与交付口径见 [plan/05-里程碑.md](plan/05-里程碑.md)。
 
 ## 内置基准指标（B1–B4，门槛随规则包下发）
 
