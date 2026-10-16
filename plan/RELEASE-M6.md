@@ -91,14 +91,26 @@ CI 对账：每轮 push 事件 run 数与 push 数一致、conclusion=success、
 - 双解释器全量：`py -3.8 -m pytest` / `py -3.12 -m pytest` → **184 passed ×2**（基线 176 + 新增 8：`test_param_caliber_fallback.py` 5 项 + `test_release_zip.py` 3 项）。
 - `bench`：exit 0（B1–B4 全达标）；`bench --probe`：四套件探活全红（可证伪）✅。
 - `tools/check_frozen.py`：`FROZEN_ALL_OK` exit 0；`selftest`：6 PASS exit 0；参数字面量门禁：0 违规。
-- 确定性打包：两次打包 sha256 **逐字节一致**（见下表）。
-- tag：`v0.1.0` → 最终提交 `<回填>`（`git rev-list -n1 v0.1.0`）。
-- Release 附件：`bill-reconciler-0.1.0.zip`，大小 `<回填>` B，sha256 `<回填>`（= `gh release view` 的 `digest`）。
-- CI：本轮 push run id `<回填>`，conclusion=success，head_sha `<回填>` 对 git log 一致。
+- 确定性打包：同一工作树打包三次 sha256 **逐字节一致**（见下表）。
+- tag：`v0.1.0` 指向**本留档所在提交**（`git rev-list -n1 v0.1.0` 现取指向含本文件的收尾提交；旧 tag 指向 `7549949` 已删，重打在收尾提交）。**不写死提交 hash**——本文件在 tag 所指提交内，写死自身 hash 会构成自指（同 §8.4 理由）。
+- Release 附件：`bill-reconciler-0.1.0.zip`，大小 **648,022** B，sha256 `75720111305f446ed99bf5157c92f60de612623441ce2910a2672cf48b16bf57`（= `gh release view` 的 `digest`）。
+- CI：每轮 push 事件数 = run 数、conclusion=success、head_sha 对 git log 一致（实测 run id / head_sha 见 8.2.1）。
 
 | 文件 | 大小（B） | sha256 |
 |---|---|---|
-| bill-reconciler-0.1.0.zip（v0.1.0 发布附件，最终提交基线） | `<回填>` | `<回填>` |
+| bill-reconciler-0.1.0.zip（v0.1.0 发布附件，收尾提交基线） | 648,022 | `75720111305f446ed99bf5157c92f60de612623441ce2910a2672cf48b16bf57` |
+
+#### 8.2.1 CI 逐条对账（2026-10-16）
+
+| run id | head_sha | event | conclusion |
+|---|---|---|---|
+| 38876608338 | `d3300d44…`（审计修复轮首个推送） | push | success |
+| 38749702074 | `3043130…`（M6 收尾） | push | success |
+| 38748966833 | `7549949…`（v0.1.0 原 tag 轮） | push | success |
+| 38748687709 | `7549949…`（M6 发布面） | push | success |
+| 38747091247 | `55a8db0…`（M5 交付面） | push | success |
+
+push 事件数 = run 数，每轮 conclusion=success，head_sha 与本地 git log 逐条一致。（收尾提交轮的 run id 见 GitHub Actions `gh run list` 现取；此处不写死，防随提交漂移。）
 
 ### 8.3 版本戳核对（逐份索引 vs 头部，2026-10-16）
 
