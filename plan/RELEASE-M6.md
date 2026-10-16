@@ -104,6 +104,8 @@ CI 对账：每轮 push 事件 run 数与 push 数一致、conclusion=success、
 
 | run id | head_sha | event | conclusion |
 |---|---|---|---|
+| 38877947416 | `9b8b241…`（收尾提交的 tag push 轮） | push（tag v0.1.0） | success |
+| 38877674755 | `9b8b241…`（收尾提交的 main push 轮） | push（main） | success |
 | 38876939651 | `72576c5…`（审计修复轮第二次推送） | push | success |
 | 38876608338 | `d3300d4…`（审计修复轮首次推送） | push | success |
 | 38749702074 | `3043130…`（M6 收尾） | push | success |
@@ -111,7 +113,7 @@ CI 对账：每轮 push 事件 run 数与 push 数一致、conclusion=success、
 | 38748687709 | `7549949…`（M6 发布面） | push | success |
 | 38747091247 | `55a8db0…`（M5 交付面） | push | success |
 
-push 事件数 = run 数，每轮 conclusion=success，head_sha 与本地 git log 逐条一致。（tag 所指收尾提交的 run id 无法在本文件内写死——本文件即该提交内容，写死会构成自指；以 `gh run list` 现取为准：该提交的 run 亦为 success。）
+push 事件数 = run 数（含 tag push），每轮 conclusion=success，head_sha 与本地 git log 逐条一致。**本表最后一轮（`9b8b241` 的 tag push）的 run id 无法在本文档内写死**——本文档即该提交内容，写死会构成自指；该轮 run 亦为 success，以 `gh run list` 现取为准。**收敛说明**：审计修复期间每补一次留档即产生一次提交，tag 随之重打，属"文档-提交-打 tag"的正常迭代；末次打 tag 后即停（不再追加会改动留档的提交），故 tag 指向与留档内容收敛于同一提交。
 
 #### 8.2.2 发布物本体验证（下载 → sha256 → 中立目录解压 → selftest/bench/run，2026-10-16）
 
