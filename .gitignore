@@ -25,6 +25,17 @@ tmp/
 *.bak
 selftest.json
 
+# CLI 默认输出名（各子命令 --out 缺省值；跑一次命令就在仓库根落一个，
+# 属运行产物——用精确路径列出，勿用 `*.json` 通配：data/truth/*.json
+# 与仓库内其他 JSON 是要入库的）
+/ledger.json
+/ledger-normalized.json
+/ledger-dedup.json
+/ledger-classified.json
+/ledger-full.json
+/report.html
+/report_data.json
+
 # 隔离的包管理器 store（本地验证用）
 .clean-store/
 .clean-venv/
