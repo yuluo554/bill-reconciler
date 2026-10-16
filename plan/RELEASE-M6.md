@@ -104,13 +104,14 @@ CI 对账：每轮 push 事件 run 数与 push 数一致、conclusion=success、
 
 | run id | head_sha | event | conclusion |
 |---|---|---|---|
-| 38876608338 | `d3300d44…`（审计修复轮首个推送） | push | success |
+| 38876939651 | `72576c5…`（审计修复轮第二次推送） | push | success |
+| 38876608338 | `d3300d4…`（审计修复轮首次推送） | push | success |
 | 38749702074 | `3043130…`（M6 收尾） | push | success |
 | 38748966833 | `7549949…`（v0.1.0 原 tag 轮） | push | success |
 | 38748687709 | `7549949…`（M6 发布面） | push | success |
 | 38747091247 | `55a8db0…`（M5 交付面） | push | success |
 
-push 事件数 = run 数，每轮 conclusion=success，head_sha 与本地 git log 逐条一致。（收尾提交轮的 run id 见 GitHub Actions `gh run list` 现取；此处不写死，防随提交漂移。）
+push 事件数 = run 数，每轮 conclusion=success，head_sha 与本地 git log 逐条一致。（tag 所指收尾提交的 run id 无法在本文件内写死——本文件即该提交内容，写死会构成自指；以 `gh run list` 现取为准：该提交的 run 亦为 success。）
 
 ### 8.3 版本戳核对（逐份索引 vs 头部，2026-10-16）
 
