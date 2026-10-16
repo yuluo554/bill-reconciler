@@ -113,6 +113,16 @@ CI 对账：每轮 push 事件 run 数与 push 数一致、conclusion=success、
 
 push 事件数 = run 数，每轮 conclusion=success，head_sha 与本地 git log 逐条一致。（tag 所指收尾提交的 run id 无法在本文件内写死——本文件即该提交内容，写死会构成自指；以 `gh run list` 现取为准：该提交的 run 亦为 success。）
 
+#### 8.2.2 发布物本体验证（下载 → sha256 → 中立目录解压 → selftest/bench/run，2026-10-16）
+
+实测（中立目录 `%TEMP%\m6verify`，与本仓无路径关联）：
+
+1. `gh release download v0.1.0` → 附件 `bill-reconciler-0.1.0.zip`，`sha256sum` = `7572011…16bf57`、648,022 B，与 §8.2 台账一致 ✅；
+2. `gh release view v0.1.0 --json isDraft,tagName,assets` → `isDraft=false`、`tagName=v0.1.0`、附件 `digest=sha256:7572011…16bf57`（与本地打包逐字节一致）✅；
+3. 中立目录解压 → `py -X utf8 -m bill_reconciler selftest` → **6 PASS / 0 PENDING / 0 FAIL，exit 0**（数据目录解析到解压目录内，符合"解压即用"）✅；
+4. 冒烟：`bench` → exit 0 ✅；`run` 三平台样例 `--report` → exit 1（既定语义：检出问题行），`v.html` + `v.json` 产物齐 ✅。
+5. 包内文档为发布态：解压包内 `README.md` 状态行 = "v0.1.0 已发布（M0–M6 全部完成 + 审计修复注记）"；包内 `plan/05` M6 行 = "✅ 完成"；包外 `plan/RELEASE-M6.md`（tag 树内）§五 = 重打说明、§八 = 修复实测 ✅。
+
 ### 8.3 版本戳核对（逐份索引 vs 头部，2026-10-16）
 
 | 文档 | plan/00 索引 | 头部 | 处置 |
