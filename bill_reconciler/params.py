@@ -13,6 +13,14 @@
   不自带任何"第几号参数是多少"的知识）。
 
 引擎/报告/基准不得出现第二份数值：违反即 ``tests/test_no_param_literals.py`` 红门。
+
+**门禁残余面（显式登记，plan/03 §七）**：token 集只覆盖两位及以上数值，
+故 ``subscription_min_repeats=3``、``subscription_interval_tolerance_days=2``、
+``header_locate_k=2`` 三个真口径参数**不受静态门禁保护**（全局收窄会引入
+退出码/步骤编号等大量误报）。兜底 = 行为穿透测试
+``tests/test_param_caliber_fallback.py``（逐参数改规则包值并断言可观测行为
+随之变化，硬编码口径即必红）；残余面清单由
+``test_residual_face_is_registered`` 锁定防漂移。
 """
 
 import hashlib
