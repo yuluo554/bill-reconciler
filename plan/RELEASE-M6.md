@@ -232,6 +232,30 @@ ERROR: No matching distribution found for setuptools>=77
 
 | 文件 | 大小（B） | sha256 |
 |---|---|---|
-| bill-reconciler-0.1.1.zip | 见 §9.6 回填 | 见 §9.6 回填（打包后回填；本文件在包外，故不构成自指） |
+| bill-reconciler-0.1.1.zip | **653,734** | `796291f7f4f67812e1d7cb54a738da7430ea684c2985ca4642425afd2d31241b` |
+
+本文件在包外（打包器恒定排除），故写死 sha256 不构成自指。
+**三方一致**：本地打包 / Release 附件 digest / 从 Release 真下载后实算。
+Release digest（`gh release view v0.1.1 --json assets`）：
+`sha256:796291f7f4f67812e1d7cb54a738da7430ea684c2985ca4642425afd2d31241b`，
+`isDraft=false`、`tagName=v0.1.1`、`size=653734`。
 
 `v0.1.0` 的 tag 与附件**保持原样**（648,022 B / `7572011…16bf57`），历史复验链不受影响。
+
+### 9.6 发布流程与实测对账
+
+| 步骤 | 实测 |
+|---|---|
+| 分支 | `release/v0.1.1`（2 个提交：`117f12d` 主改动 + `4ce5166` DEC1 改判） |
+| PR | [#1](https://github.com/yuluo554/bill-reconciler/pull/1)，`mergeStateStatus=CLEAN` |
+| CI（PR head `4ce5166`） | **4 个 check-run 全 success**（push + PR 各 2 job）；`annotations_url` **全为 null（零注解）** |
+| 合并 | `gh pr merge 1 --merge`（**非 squash**，让被 CI 验过的提交留在 main 祖先链）→ merge commit `c0692fa` |
+| CI（main `c0692fa`） | **2 个 check-run 全 success** |
+| tag | 轻量推送后 `git rev-list -n1 v0.1.1` → `c0692fa`（= 已验证的合并提交） |
+| 打包 | 在 tag 提交上重打 → sha256 与合并前打包**逐字符一致**（`796291f7…241b`），证明 merge 未改内容 |
+| 确定性 | 两次打包逐字节一致（93 条目，包外件 1） |
+| Release | https://github.com/yuluo554/bill-reconciler/releases/tag/v0.1.1 |
+| 下载复验 | `gh release download v0.1.1` → sha256 一致 → 解压到中立目录 → `selftest` **6 PASS / exit 0**、`bench` **B1–B4 达标 / exit 0**、`bench --probe` **四套件通过 / exit 0** |
+
+**`v0.1.1` 不写死 tag/合并提交 hash 以外的自指值**：本文件记录 zip 的 sha256（包外件，安全），
+但不记录"本文件所在提交的 hash"（那会自指）。
