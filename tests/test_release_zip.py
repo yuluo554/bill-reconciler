@@ -63,8 +63,13 @@ def test_packer_covers_tracked_face_minus_exclusion(tmp_path):
     ).stdout.splitlines()
     expected = {t for t in tracked if t.strip() and t.strip() != "plan/RELEASE-M6.md"}
     out = _run_packer(tmp_path / "d.zip")
+    # 顶层目录名跟随 __version__（打包器现取），测试同样现取——不写死版本，
+    # 避免升版本时两处硬编码各自漂移。
+    from bill_reconciler import __version__
+
+    prefix = "bill-reconciler-%s/" % __version__
     got = {
-        n.split("bill-reconciler-0.1.0/", 1)[1]
+        n.split(prefix, 1)[1]
         for n in zipfile.ZipFile(out).namelist()
     }
     assert got == expected, "打包面与追踪面不符：差集 %s" % (

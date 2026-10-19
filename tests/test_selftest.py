@@ -33,6 +33,7 @@ def test_selftest_reports_pending_m1_assets(run_cli):
 def test_selftest_flags_invalid_data_dir(run_cli, tmp_path):
     bogus = tmp_path / "not-a-data-dir"
     result = run_cli("selftest", env={"BILL_RECONCILER_DATA": str(bogus)})
-    # 显式环境变量指向无效目录 → 数据目录检查 FAIL → 退出码 1（完成但检出问题）
-    assert result.returncode == 1
+    # 期望变更（DEC2=A，退出码口径自洽）：数据目录不可用属"环境不可用"（3），
+    # 与 bench 及 README 退出码表一致；此前报 1（"检出需人工处理的问题"）是口径错位。
+    assert result.returncode == 3
     assert "BILL_RECONCILER_DATA" in (result.stdout + result.stderr)
