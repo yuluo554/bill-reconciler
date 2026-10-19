@@ -19,17 +19,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # 显式 include：3.8 腿钉 ubuntu-22.04（ubuntu-latest 自 2026-10-19 起迁移 Ubuntu 26，
-        # 3.8 是否仍可跑属未验证，钉旧镜像规避）；3.12 腿跑 ubuntu-latest 覆盖新镜像。
-        include:
-          - os: ubuntu-22.04
-            python: "3.8"
-          - os: ubuntu-latest
-            python: "3.12"
-          - os: windows-latest
-            python: "3.8"
-          - os: windows-latest
-            python: "3.12"
+        # Python 3.12 单一 floor（版本下限）：元数据用 PEP 639 SPDX license 表达式，
+        # 需 setuptools>=77，而 setuptools>=76 起已不支持 Python 3.8/3.9。
+        # 两个 os 保证跨平台面；不再有 ubuntu-22.04 钉版需求。
+        os: [ubuntu-latest, windows-latest]
+        python: ["3.12"]
     env:
       # 编码与 pyc 纪律（方法论环境坑：子进程/CI 的编码通路独立加固）
       PYTHONUTF8: "1"

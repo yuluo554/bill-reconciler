@@ -28,8 +28,8 @@ _STATUS_PENDING = "PENDING"
 
 
 def _check_python():
-    ok = sys.version_info[:2] >= (3, 8)
-    detail = "%s（要求 >= 3.8）" % platform.python_version()
+    ok = sys.version_info[:2] >= (3, 12)
+    detail = "%s（要求 >= 3.12）" % platform.python_version()
     return (_STATUS_PASS if ok else _STATUS_FAIL), detail
 
 

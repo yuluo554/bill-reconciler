@@ -160,25 +160,49 @@ push 事件数 = run 数（含 tag push），每轮 conclusion=success，head_sh
 
 | 决策 | 选项 | 内容 |
 |---|---|---|
-| DEC1 | **A** | 解释器 floor **保持 `>=3.8`**（CI 维持 4 组合，classifiers 五档不动） |
+| DEC1 | ~~A~~ → **B（改判）** | 原定保持 `>=3.8`；**CI 首跑暴露硬冲突后改判为 `>=3.12`**（见 §9.2） |
 | DEC2 | **A** | 非 editable 安装下 `selftest` **改为 exit 3**，与 `bench` / README 退出码表一致 |
-| DEC3 | **B** | 升 actions 大版本 + **Python 3.8 两腿钉到 `ubuntu-22.04`** |
+| DEC3 | **B** | 升 actions 大版本；3.8 腿钉 `ubuntu-22.04` 的做法**随 DEC1 改判作废**（已无 3.8 腿） |
 | 版本策略 | **A** | `__version__` `0.1.0 → 0.1.1`，新 tag `v0.1.1` + 新 Release；**`v0.1.0` 与其附件保留不动** |
-| 发布通道 | **A** | 分支 → PR → CI 四矩阵全绿 → `--merge` 进 main → 在合并后提交打 tag |
+| 发布通道 | **A** | 分支 → PR → CI 全绿 → `--merge` 进 main → 在合并后提交打 tag |
 
-### 9.2 改动清单（受版本控制）
+### 9.2 DEC1 改判依据（CI 首跑实测，非推断）
+
+PR #1 首次 CI：**两条 3.8 腿全红、两条 3.12 腿全绿**。日志原文：
+
+```
+ERROR: Could not find a version that satisfies the requirement setuptools>=77
+       (from versions: … 75.3.4)
+ERROR: No matching distribution found for setuptools>=77
+```
+
+逐项实测确认根因链：
+
+| 事实 | 实测证据 |
+|---|---|
+| SPDX 字符串需 setuptools **>= 77** | setuptools **75.3.4** 对 `license = "MIT"` **硬报错**：`configuration error: project.license must be valid exactly by one definition`（`ValueError`，构建失败）；`license-files` 同样硬报错 |
+| setuptools >= 76 **不支持 Python 3.8** | PyPI 元数据实查：75.3.4 `>=3.8`；**76.0.0 / 77.0.3 / 78.1.1 / 80.9.0 均 `>=3.9`**；84.0.0 `>=3.10` |
+| 旧式 `license = {text = "MIT"}` 在 84 上仍可构建 | 但留 **1 条** `SetuptoolsDeprecationWarning`（2027-02-18 期限未解） |
+
+**结论**：`requires-python = ">=3.8"` 与「修掉 license 弃用（P1）」**不可同时成立**。
+3.8 / 3.9 / 3.10 均已 EOL，故取「抬 floor 到 3.12、保住 P1 修复」。
+
+**疏漏声明**：本轮执行方在批次 1 只在 3.12 环境验证了 warning 归零，**未验证 3.8 通道**，
+该冲突由 CI 拦下后改判。
+
+### 9.3 改动清单（受版本控制）
 
 | 文件 | 动作 |
 |---|---|
-| `pyproject.toml` | `license = "MIT"` + `license-files = ["LICENSE"]`；删 MIT classifier；`setuptools>=61 → >=77` |
-| `bill_reconciler/selftest.py` | 数据目录不可用 → `return EXIT_ENV`（3）；docstring 补第三态；复用 `datadir.ENV_VAR` |
+| `pyproject.toml` | `license = "MIT"` + `license-files = ["LICENSE"]`；删 MIT classifier；`setuptools>=61 → >=77`；**`requires-python >=3.8 → >=3.12`**；classifiers 五档 → 一档 |
+| `bill_reconciler/selftest.py` | 数据目录不可用 → `return EXIT_ENV`（3）；docstring 补第三态；复用 `datadir.ENV_VAR`；**解释器下限断言 3.8 → 3.12** |
 | `bill_reconciler/__init__.py` | `__version__ = "0.1.1"` |
 | `tests/test_selftest.py` | `test_selftest_flags_invalid_data_dir` 期望 1 → **3**（改值不删用例，附期望变更注） |
 | `tests/test_release_zip.py` | zip 顶层前缀改为**现取** `__version__`，不再硬编码版本 |
 | `tools/make_release_zip.py` | 新增 `_package_version()`，zip 顶层目录名跟随 `__version__` |
-| `.github/workflows/ci.yml` | checkout@v4→**v7**、setup-python@v5→**v7**；加 `permissions`/`concurrency`；矩阵改显式 `include`，3.8 腿钉 `ubuntu-22.04` |
-| `README.md` | 状态行转 v0.1.1；退出码 `3` 行补"`selftest` 与 `bench` 一致"；发布 zip 名改 0.1.1 |
-| `CHANGELOG.md` | **新增**（v0.1.1 / v0.1.0 两节） |
+| `.github/workflows/ci.yml` | checkout@v4→**v7**、setup-python@v5→**v7**；加 `permissions`/`concurrency`；**矩阵 4 → 2 job（`3.12 × {ubuntu-latest, windows-latest}`）** |
+| `README.md` | 状态行转 v0.1.1；**要求改 `≥ 3.12`、矩阵描述改 2 job**；退出码 `3` 行补"`selftest` 与 `bench` 一致"；发布 zip 名改 0.1.1 |
+| `CHANGELOG.md` | **新增**（v0.1.1 / v0.1.0 两节，含破坏性变更说明） |
 
 删除：仓库根 `full312.log` / `full38.log`（未跟踪、已 ignore、内容是过期 `176 passed` 快照）。
 

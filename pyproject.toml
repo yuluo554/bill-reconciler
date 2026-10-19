@@ -7,7 +7,7 @@ name = "bill-reconciler"
 dynamic = ["version"]
 description = "多平台账单『真实支出』对账器：微信/支付宝/银行导出账单合并去重 + 转账语义识别，算出真正花掉的钱。纯本地零上传。"
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.12"
 license = "MIT"
 license-files = ["LICENSE"]
 authors = [{ name = "yuluo554" }]
@@ -19,10 +19,6 @@ classifiers = [
   "Natural Language :: Chinese (Simplified)",
   "Operating System :: OS Independent",
   "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.8",
-  "Programming Language :: Python :: 3.9",
-  "Programming Language :: Python :: 3.10",
-  "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Topic :: Office/Business :: Financial :: Accounting",
 ]

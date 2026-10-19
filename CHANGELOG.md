@@ -25,12 +25,18 @@
 
 - CI actions：`actions/checkout@v4 → @v7`、`actions/setup-python@v5 → @v7`（消除 Node 20 弃用注解）。
 - CI 新增 `permissions: contents: read` 与 `concurrency`（同 ref 并发取消）。
-- CI 矩阵改为显式 `include` 四行，**Python 3.8 两腿钉到 `ubuntu-22.04`**，规避
-  `ubuntu-latest` 自 2026-10-19 起迁移 Ubuntu 26 的不确定性；3.12 腿仍跑 `ubuntu-latest`。
+- CI 矩阵：`3.12 × {ubuntu-latest, windows-latest}`（随 floor 抬升由 4 job 降为 2 job）。
 
-### 兼容性
+### 兼容性 / 破坏性变更
 
-- `requires-python` **保持 `>=3.8`**，classifiers 五档不变。
+- **`requires-python`：`>=3.8` → `>=3.12`**，classifiers 五档（3.8–3.12）→ 一档（3.12）。
+  **这是一项破坏性变更**，起因是一个硬冲突：PEP 639 的 SPDX license 表达式需
+  `setuptools>=77`，而 `setuptools>=76` 起已不支持 Python 3.8/3.9（76.0.0 起
+  `requires_python>=3.9`，84.0.0 起 `>=3.10`）。两条路只能选一条：
+  **保 3.8 ⇒ 无法修 license 弃用（P1，含 setuptools 2027-02-18 期限）**，反之亦然。
+  3.8/3.9/3.10 均已 EOL，故选择抬 floor。`selftest` 的解释器检查同步为 `>= 3.12`。
+- CI 矩阵随之由 4 job 降为 2 job（`3.12 × {ubuntu, windows}`），不再需要
+  Python 3.8 腿的 `ubuntu-22.04` 钉版。
 - 退出码四态定义（0/1/2/3）不变；仅 `selftest` 开始正确使用既有的 `EXIT_ENV`。
 - 包结构与打包声明不变（wheel 仍 32 条目、包在包内、无 package-data）。
 

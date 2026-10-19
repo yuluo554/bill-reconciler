@@ -2,7 +2,7 @@
 
 把微信 / 支付宝 / 银行卡导出的账单合并成一本账，自动去重同一笔消费、识别转账 / 退款 / AA回款 / 自动续费，算出你**真正花掉的钱**——全程不出本机。
 
-> 纯本地 Python CLI（≥ 3.8，**零第三方运行时依赖**）+ 单文件 HTML 报告 · 零上传 · 零账号 · 零遥测 · **不使用 LLM**，结论 100% 由确定性规则产生
+> 纯本地 Python CLI（≥ 3.12，**零第三方运行时依赖**）+ 单文件 HTML 报告 · 零上传 · 零账号 · 零遥测 · **不使用 LLM**，结论 100% 由确定性规则产生
 
 **当前状态**：**v0.1.1 已发布**（2026-10-20；M0–M6 六个里程碑全部完成）。v0.1.1 为元数据与卫生迭代：license 改用 SPDX 表达式（元数据生成零 warning）、`selftest` 在数据目录不可用时返回 exit 3（与 `bench` 及退出码契约一致）、CI actions 升级并规避 `ubuntu-latest` 迁移、打包器不再硬编码版本号。CLI 八个子命令全部实装（`import` / `normalize` / `dedup` / `classify` / `report` / `run` / `bench` / `selftest`）；`run --report` 一条命令出**全链产物**（净流水 + 语义 + 订阅 + 单文件 HTML 报告 + 机读 JSON）。内置基准 B1–B4 全绿（指标见下表）；干净环境按本 README 逐条验证通过（记录见 [plan/verify/README.md](plan/verify/README.md)）；CI 四矩阵（py3.8/3.12 × ubuntu/windows）全绿。开发进程与交付口径见 [plan/05-里程碑.md](plan/05-里程碑.md)。
 
@@ -20,7 +20,7 @@
 
 ## 快速开始
 
-要求：Python ≥ 3.8（开发与 CI 矩阵：3.8 与 3.12）。
+要求：Python ≥ 3.12（开发与 CI 矩阵：3.12 × {ubuntu, windows}）。
 
 **方式一：下载发布 zip（免 git、免安装）**——从 [Releases](https://github.com/yuluo554/bill-reconciler/releases) 下载 `bill-reconciler-0.1.1.zip`（sha256 见 Release 说明，确定性打包：两次构建逐字节一致），解压后进入目录直接运行下方命令（去掉 `git clone` 两步）。
 
@@ -71,7 +71,7 @@ brc bench
 - **仅支持仓库内运行或 editable 安装**：规则包与样例是仓库内冻结数据（`data/`），通过"数据目录解析"（环境变量 → 当前目录向上查找）定位，**不随包分发**——因此 `pip install .`（非 editable）后脱离仓库目录运行会因找不到规则包报错退出（exit 3）。这是刻意取舍：冻结数据以仓库为唯一真源；
 - **Windows 上 `python` 可能是商店占位符**（执行无效果）：请用 `py` 启动器，如 `py -m bill_reconciler bench`；
 - **GBK 编码通道的货币符号**：微信 GBK 导出中 ¥ 为全角形（U+FFE5），解析器对全角/半角两种形态均可识别；
-- **性能**：36,000 行合成账单全链 `run --report` ≈ 5.5 秒（Python 3.8 / 3.12 实测，记录见 [plan/verify/README.md](plan/verify/README.md)）；更大体量未测；
+- **性能**：36,000 行合成账单全链 `run --report` ≈ 5.5 秒（Python 3.8 / 3.12 实测，记录见 [plan/verify/README.md](plan/verify/README.md)；v0.1.1 起仅支持 3.12+，该数值在 3.12 通道成立）；更大体量未测；
 - **未覆盖的输入形态**：银行 PDF / OCR / 多币种不进首期（见下方边界）；表头漂移超出内置别名表时按 `header_not_found` 显式报错，不做猜测性解析。
 
 ## 开发与测试
@@ -81,7 +81,7 @@ python -m pip install -e ".[dev]"
 python -m pytest
 ```
 
-双解释器建议：3.8 与 3.12 各跑一遍全量测试。生成器与守门脚本在 [`tools/`](tools/README.md)（仓库内运行，不随包安装）。
+Python 3.12 为唯一支持的版本下限（元数据用 PEP 639 SPDX license，需 setuptools>=77）。生成器与守门脚本在 [`tools/`](tools/README.md)（仓库内运行，不随包安装）。
 
 ## 隐私与合规（必读）
 
