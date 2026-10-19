@@ -6,6 +6,10 @@
 - FAIL：不满足（任一 FAIL → 退出码 1，"完成但检出需人工处理的问题"）；
 - PENDING："计划于后续里程碑生成"的数据资产——显式列出，**绝不冒充通过**。
 
+退出码另设"环境不可用"一态（3）：数据目录解析失败 / 不存在时，
+检查项无法运行——这与"检出缺陷"（1）是两件事，与 ``bench`` 及
+README 的退出码契约保持一致。
+
 M1 起：规则包 / 合成样例生成后，对应项从 PENDING 翻转为 PASS
 （tests/test_selftest.py 的期望同步翻转，注明"期望变更"）。
 """
@@ -15,8 +19,8 @@ import platform
 import sys
 
 from . import __version__
-from .datadir import find_data_dir
-from .errors import EXIT_ISSUES, EXIT_OK
+from .datadir import ENV_VAR, find_data_dir
+from .errors import EXIT_ENV, EXIT_ISSUES, EXIT_OK
 
 _STATUS_PASS = "PASS"
 _STATUS_FAIL = "FAIL"
@@ -24,8 +28,8 @@ _STATUS_PENDING = "PENDING"
 
 
 def _check_python():
-    ok = sys.version_info[:2] >= (3, 8)
-    detail = "%s（要求 >= 3.8）" % platform.python_version()
+    ok = sys.version_info[:2] >= (3, 12)
+    detail = "%s（要求 >= 3.12）" % platform.python_version()
     return (_STATUS_PASS if ok else _STATUS_FAIL), detail
 
 
@@ -39,7 +43,7 @@ def _check_data_dir():
     except Exception as exc:  # EnvError：显式环境变量指向无效目录
         return None, _STATUS_FAIL, "数据目录解析失败：%s" % exc
     if data_dir is None:
-        return None, _STATUS_FAIL, "未找到 data/ 目录（请在仓库根运行，或设置 BILL_RECONCILER_DATA）"
+        return None, _STATUS_FAIL, "未找到 data/ 目录（请在仓库根运行，或设置 %s）" % ENV_VAR
     return data_dir, _STATUS_PASS, "数据目录：%s" % data_dir
 
 
@@ -86,10 +90,18 @@ def _check_param_literals(data_dir):
 
 
 def run_selftest():
-    """运行全部检查并打印清单；返回退出码（0 全过 / 1 有 FAIL）。"""
+    """运行全部检查并打印清单；返回退出码（0 全过 / 1 有 FAIL / 3 环境不可用）。"""
     print("bill-reconciler selftest %s" % __version__)
 
     data_dir, data_status, data_detail = _check_data_dir()
+
+    # 数据目录不可用 → 环境不可用（3），与 bench 同一口径：
+    # 这不是"检出需人工处理的问题"（1），而是检查项本身无法运行。
+    # 因此**不打印检查清单**（清单里每一项都会是 FAIL，会把"环境不可用"伪装成"检出缺陷"）。
+    if data_dir is None:
+        print("错误：%s" % data_detail)
+        return EXIT_ENV
+
     checks = [
         ("Python 解释器", *_check_python()),
         ("包导入", *_check_package()),

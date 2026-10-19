@@ -18,6 +18,7 @@
 """
 from __future__ import annotations
 
+import re
 import sys
 import zipfile
 from pathlib import Path
@@ -28,6 +29,20 @@ FIXED_EXTERNAL_ATTR = 0o100644 << 16  # 常规文件 rw-r--r--
 
 # 包外件（自指文件）：见模块 docstring。恒定排除，保证打包确定性。
 _EXCLUDED_NAMES = ("plan/RELEASE-M6.md",)
+
+
+def _package_version(root: Path) -> str:
+    """从 bill_reconciler/__init__.py 现取版本（唯一真源），不另设常量。
+
+    发布 zip 的顶层目录名必须跟随版本号，否则升版本后包内前缀仍是旧版本
+    （过 blame 会看到两处硬编码各自漂移）。
+    """
+    source = (root / "bill_reconciler" / "__init__.py").read_text(encoding="utf-8")
+    match = re.search(r'^__version__\s*=\s*["\']([^"\']+)["\']', source, re.MULTILINE)
+    if not match:
+        print("FAIL: 无法从 bill_reconciler/__init__.py 解析 __version__", file=sys.stderr)
+        raise SystemExit(2)
+    return match.group(1)
 
 
 def main() -> int:
@@ -42,7 +57,7 @@ def main() -> int:
         print("FAIL: git ls-files 为空，不在 git 仓库内？", file=sys.stderr)
         return 2
     with zipfile.ZipFile(out, "w", compression=zipfile.ZIP_STORED) as zf:
-        prefix = "bill-reconciler-0.1.0/"
+        prefix = "bill-reconciler-%s/" % _package_version(root)
         for name in names:
             data = (root / name).read_bytes()
             info = zipfile.ZipInfo(prefix + name, date_time=FIXED_DATE_TIME)

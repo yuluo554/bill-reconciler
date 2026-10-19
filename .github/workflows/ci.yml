@@ -5,6 +5,13 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     name: py${{ matrix.python }} / ${{ matrix.os }}
@@ -12,17 +19,20 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # Python 3.12 单一 floor（版本下限）：元数据用 PEP 639 SPDX license 表达式，
+        # 需 setuptools>=77，而 setuptools>=76 起已不支持 Python 3.8/3.9。
+        # 两个 os 保证跨平台面；不再有 ubuntu-22.04 钉版需求。
         os: [ubuntu-latest, windows-latest]
-        python: ["3.8", "3.12"]
+        python: ["3.12"]
     env:
       # 编码与 pyc 纪律（方法论环境坑：子进程/CI 的编码通路独立加固）
       PYTHONUTF8: "1"
       PYTHONDONTWRITEBYTECODE: "1"
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python }}
       - name: Install (editable + dev extras)

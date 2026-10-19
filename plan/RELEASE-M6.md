@@ -148,3 +148,90 @@ push 事件数 = run 数（含 tag push），每轮 conclusion=success，head_sh
 - **B（未采用）**：把台账写进包内并反复"改值→重打→再改"迭代到不动点——**不可能收敛**（改一次值 zip 就变一次）。
 
 故取 A。若审计方要求"包内必须含留档"，替代方案是把留档拆成"包内不含 sha 的正文"+"包外 `SHA256SUMS` 附件"——但那与 A 等价（校验和仍在包外），本仓选更简单的 A。
+
+## 九、v0.1.1 发布（2026-10-20，元数据与卫生迭代）
+
+> 触发：外部诊断（`update/00-诊断报告.md`）指出三条缺陷——license 元数据已弃用（含 setuptools
+> 2027-02-18 硬期限）、非 editable 安装下 `selftest` 退出码与 README 契约冲突、CI 全部用
+> `*-latest` 且 actions 版本触发 Node 20 弃用注解。本轮为**纯元数据 / 退出码 / CI 卫生**迭代，
+> **不碰对账、去重、语义识别逻辑，不碰冻结数据，B1–B4 门槛未动**。
+
+### 9.1 用户拍板的决策
+
+| 决策 | 选项 | 内容 |
+|---|---|---|
+| DEC1 | ~~A~~ → **B（改判）** | 原定保持 `>=3.8`；**CI 首跑暴露硬冲突后改判为 `>=3.12`**（见 §9.2） |
+| DEC2 | **A** | 非 editable 安装下 `selftest` **改为 exit 3**，与 `bench` / README 退出码表一致 |
+| DEC3 | **B** | 升 actions 大版本；3.8 腿钉 `ubuntu-22.04` 的做法**随 DEC1 改判作废**（已无 3.8 腿） |
+| 版本策略 | **A** | `__version__` `0.1.0 → 0.1.1`，新 tag `v0.1.1` + 新 Release；**`v0.1.0` 与其附件保留不动** |
+| 发布通道 | **A** | 分支 → PR → CI 全绿 → `--merge` 进 main → 在合并后提交打 tag |
+
+### 9.2 DEC1 改判依据（CI 首跑实测，非推断）
+
+PR #1 首次 CI：**两条 3.8 腿全红、两条 3.12 腿全绿**。日志原文：
+
+```
+ERROR: Could not find a version that satisfies the requirement setuptools>=77
+       (from versions: … 75.3.4)
+ERROR: No matching distribution found for setuptools>=77
+```
+
+逐项实测确认根因链：
+
+| 事实 | 实测证据 |
+|---|---|
+| SPDX 字符串需 setuptools **>= 77** | setuptools **75.3.4** 对 `license = "MIT"` **硬报错**：`configuration error: project.license must be valid exactly by one definition`（`ValueError`，构建失败）；`license-files` 同样硬报错 |
+| setuptools >= 76 **不支持 Python 3.8** | PyPI 元数据实查：75.3.4 `>=3.8`；**76.0.0 / 77.0.3 / 78.1.1 / 80.9.0 均 `>=3.9`**；84.0.0 `>=3.10` |
+| 旧式 `license = {text = "MIT"}` 在 84 上仍可构建 | 但留 **1 条** `SetuptoolsDeprecationWarning`（2027-02-18 期限未解） |
+
+**结论**：`requires-python = ">=3.8"` 与「修掉 license 弃用（P1）」**不可同时成立**。
+3.8 / 3.9 / 3.10 均已 EOL，故取「抬 floor 到 3.12、保住 P1 修复」。
+
+**疏漏声明**：本轮执行方在批次 1 只在 3.12 环境验证了 warning 归零，**未验证 3.8 通道**，
+该冲突由 CI 拦下后改判。
+
+### 9.3 改动清单（受版本控制）
+
+| 文件 | 动作 |
+|---|---|
+| `pyproject.toml` | `license = "MIT"` + `license-files = ["LICENSE"]`；删 MIT classifier；`setuptools>=61 → >=77`；**`requires-python >=3.8 → >=3.12`**；classifiers 五档 → 一档 |
+| `bill_reconciler/selftest.py` | 数据目录不可用 → `return EXIT_ENV`（3）；docstring 补第三态；复用 `datadir.ENV_VAR`；**解释器下限断言 3.8 → 3.12** |
+| `bill_reconciler/__init__.py` | `__version__ = "0.1.1"` |
+| `tests/test_selftest.py` | `test_selftest_flags_invalid_data_dir` 期望 1 → **3**（改值不删用例，附期望变更注） |
+| `tests/test_release_zip.py` | zip 顶层前缀改为**现取** `__version__`，不再硬编码版本 |
+| `tools/make_release_zip.py` | 新增 `_package_version()`，zip 顶层目录名跟随 `__version__` |
+| `.github/workflows/ci.yml` | checkout@v4→**v7**、setup-python@v5→**v7**；加 `permissions`/`concurrency`；**矩阵 4 → 2 job（`3.12 × {ubuntu-latest, windows-latest}`）** |
+| `README.md` | 状态行转 v0.1.1；**要求改 `≥ 3.12`、矩阵描述改 2 job**；退出码 `3` 行补"`selftest` 与 `bench` 一致"；发布 zip 名改 0.1.1 |
+| `CHANGELOG.md` | **新增**（v0.1.1 / v0.1.0 两节，含破坏性变更说明） |
+
+删除：仓库根 `full312.log` / `full38.log`（未跟踪、已 ignore、内容是过期 `176 passed` 快照）。
+
+### 9.3 实测台账
+
+| 项 | v0.1.0（改前） | v0.1.1（改后） |
+|---|---|---|
+| 测试 | 184 passed | **184 passed**（`--collect-only` 亦 184，零增减） |
+| selftest（仓库根 editable） | 6 PASS / 0 PENDING / 0 FAIL，exit 0 | **同左，exit 0** |
+| bench | B1–B4 达标，exit 0 | 同左，exit 0 |
+| bench --probe | 四套件探活通过（0.1039 / 0.4286 / 0.9403+violations=4 / 0.8889） | 同左，exit 0 |
+| 元数据 warning（setuptools 84.0.0） | **3 条** `SetuptoolsDeprecationWarning` | **0 条**（`WARNINGS: []`） |
+| METADATA license 字段 | `License: MIT` + MIT classifier | `License-Expression: MIT` + `License-File: LICENSE` |
+| 非 editable `selftest`（中立 cwd） | `2 PASS / 2 PENDING / 2 FAIL`，**exit 1** | 单行 `未找到 data/ 目录…`，**exit 3** |
+| 非 editable `bench`（中立 cwd） | exit 3 | exit 3（不变） |
+| wheel | 73,562 B / 32 条目 / data 0 | **73,838 B / 32 条目 / data 0**（+276 B 全来自 METADATA） |
+| Release 附件 sha256 | `75720111305f446ed99bf5157c92f60de612623441ce2910a2672cf48b16bf57` | 见 §9.5 |
+
+### 9.4 一处既有行为（改前就有，本轮未改）
+
+中立 cwd + **有效** `BILL_RECONCILER_DATA` 时，`selftest` 走到"参数字面量门禁"会报
+`错误：扫描根不存在：bill_reconciler` → **exit 2**。根因：`lint_params._SCAN_ROOTS` 是相对路径，
+只在仓库根可用；改前因数据目录先失败而不可达。**已用 HEAD 源码独立构建 wheel 复现同一条**，
+确认与本轮改动无关。是否改为"扫描根不可用 → 3"留待后续决策。
+
+### 9.5 v0.1.1 发布物
+
+| 文件 | 大小（B） | sha256 |
+|---|---|---|
+| bill-reconciler-0.1.1.zip | 见 §9.6 回填 | 见 §9.6 回填（打包后回填；本文件在包外，故不构成自指） |
+
+`v0.1.0` 的 tag 与附件**保持原样**（648,022 B / `7572011…16bf57`），历史复验链不受影响。
